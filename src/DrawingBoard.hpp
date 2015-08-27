@@ -27,10 +27,15 @@ private:
 
 	cpp3ds::Vector2f m_size;
 	float m_thickness;
+	cpp3ds::Color m_color;
 	cpp3ds::Vector2f m_lastPoint;
 	cpp3ds::RectangleShape m_background;
-	cpp3ds::VertexArray m_vertices;
+	std::vector<cpp3ds::VertexArray> m_lines;
+	cpp3ds::VertexArray m_activeLine;
 	cpp3ds::Texture m_texture;
+
+	cpp3ds::Time m_timeLimit;
+	cpp3ds::Clock m_clock;
 
 };
 
