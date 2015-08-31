@@ -11,12 +11,20 @@ endif()
 set(CMAKE_MODULE_PATH "${CPP3DS}/cmake" ${CMAKE_MODULE_PATH})
 include(cpp3ds)
 
+include_directories(
+	${PROJECT_SOURCE_DIR}/external/tween-engine/include
+)
+
 # Assign all sources, resources, and assets of our project.
 # You may prefer not to use GLOB and instead define each file explicitly.
 # See: http://stackoverflow.com/questions/1027247/best-way-to-specify-sourcefiles-in-cmake
+FILE(GLOB_RECURSE TWEEN_ENGINE_SOURCE ${PROJECT_SOURCE_DIR}/external/tween-engine/src/*.cpp)
 set(SOURCE_FILES
-    ${PROJECT_SOURCE_DIR}/src/main.cpp
-    ${PROJECT_SOURCE_DIR}/src/DrawingBoard.cpp
+	${PROJECT_SOURCE_DIR}/src/main.cpp
+	${PROJECT_SOURCE_DIR}/src/Pictionary.cpp
+	${PROJECT_SOURCE_DIR}/src/DrawingBoard.cpp
+	${PROJECT_SOURCE_DIR}/src/TweenTransformable.cpp
+	${TWEEN_ENGINE_SOURCE}
 )
 FILE(GLOB_RECURSE AUDIO_FILES ${PROJECT_SOURCE_DIR}/res/audio/[^.]*)
 FILE(GLOB_RECURSE IMAGE_FILES ${PROJECT_SOURCE_DIR}/res/images/[^.]*)

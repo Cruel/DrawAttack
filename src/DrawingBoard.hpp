@@ -2,10 +2,11 @@
 #define PICTIONARY3DS_DRAWINGBOARD_H
 
 #include <cpp3ds/Graphics.hpp>
+#include "TweenTransformable.hpp"
 
-namespace pic3ds {
+namespace Pictionary {
 
-class DrawingBoard : public cpp3ds::Drawable, public cpp3ds::Transformable {
+class DrawingBoard : public cpp3ds::Drawable, public util3ds::TweenTransformable {
 
 public:
 

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "DrawingBoard.hpp"
 
-namespace pic3ds {
+namespace Pictionary {
 
 
 DrawingBoard::DrawingBoard() {
