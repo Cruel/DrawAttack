@@ -1,10 +1,10 @@
-#ifndef PICTIONARY3DS_DRAWINGBOARD_H
-#define PICTIONARY3DS_DRAWINGBOARD_H
+#ifndef DRAWATTACK_DRAWINGBOARD_H
+#define DRAWATTACK_DRAWINGBOARD_H
 
 #include <cpp3ds/Graphics.hpp>
 #include "TweenTransformable.hpp"
 
-namespace Pictionary {
+namespace DrawAttack {
 
 class DrawingBoard : public cpp3ds::Drawable, public util3ds::TweenTransformable {
 
@@ -40,7 +40,7 @@ private:
 
 };
 
-} // namespace pic3ds
+} // namespace DrawAttack
 
 
-#endif //PICTIONARY3DS_DRAWINGBOARD_H
+#endif //DRAWATTACK_DRAWINGBOARD_H

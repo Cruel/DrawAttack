@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 # Project name without spaces or special characters
-project("Pictionary3DS")
+project("DrawAttack")
 
 # Include cpp3ds cmake module
 set(CPP3DS $ENV{CPP3DS})
@@ -21,9 +21,10 @@ include_directories(
 FILE(GLOB_RECURSE TWEEN_ENGINE_SOURCE ${PROJECT_SOURCE_DIR}/external/tween-engine/src/*.cpp)
 set(SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/src/main.cpp
-	${PROJECT_SOURCE_DIR}/src/Pictionary.cpp
+	${PROJECT_SOURCE_DIR}/src/DrawAttack.cpp
 	${PROJECT_SOURCE_DIR}/src/DrawingBoard.cpp
 	${PROJECT_SOURCE_DIR}/src/TweenTransformable.cpp
+	${PROJECT_SOURCE_DIR}/src/RoundedLine.cpp
 	${TWEEN_ENGINE_SOURCE}
 )
 FILE(GLOB_RECURSE AUDIO_FILES ${PROJECT_SOURCE_DIR}/res/audio/[^.]*)
@@ -55,4 +56,4 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 
 add_custom_target(${PROJECT_NAME}-res ALL DEPENDS ${RESOURCE_OUTPUT} ${SHADER_OUTPUT})
 add_subdirectory(${CPP3DS}/cmake/template_arm arm)
-add_subdirectory(${CPP3DS}/cmake/template_emu emu)
+#add_subdirectory(${CPP3DS}/cmake/template_emu emu)

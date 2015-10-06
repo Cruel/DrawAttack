@@ -1,7 +1,7 @@
 #include <iostream>
 #include "DrawingBoard.hpp"
 
-namespace Pictionary {
+namespace DrawAttack {
 
 
 DrawingBoard::DrawingBoard() {
@@ -98,4 +98,4 @@ void DrawingBoard::setLineThickness(float thickness) {
 }
 
 
-} // namespace pic3ds
+} // namespace DrawAttack
