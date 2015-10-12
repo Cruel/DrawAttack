@@ -276,6 +276,8 @@ void Keyboard::updateVertices()
 	                       m_input.text.getCharacterSize());
 	m_cursor.setPosition(m_input.text.getPosition().x + m_input.text.getGlobalBounds().width - dummyText.getLocalBounds().width,
 	                     m_cursor.getPosition().y);
+
+	m_needsUpdate = false;
 }
 
 
@@ -322,6 +324,7 @@ bool Keyboard::processEvents(cpp3ds::Event &event)
 				i = inputString.getSize();
 			m_input.cursorPosition = i;
 		}
+		m_needsUpdate = true;
 	}
 
 	if (event.type == cpp3ds::Event::TouchEnded) {
@@ -366,6 +369,7 @@ bool Keyboard::processEvents(cpp3ds::Event &event)
 					}
 			}
 			m_activeButton = NULL;
+			m_needsUpdate = true;
 		}
 	}
 
@@ -381,7 +385,8 @@ bool Keyboard::processEvents(cpp3ds::Event &event)
 
 void Keyboard::update(float delta)
 {
-	updateVertices();
+	if (m_needsUpdate)
+		updateVertices();
 }
 
 

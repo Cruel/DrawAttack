@@ -80,6 +80,7 @@ private:
 	bool                  m_usingTempLayout;
 	bool                  m_loaded;
 	bool                  m_active;
+	bool                  m_needsUpdate;
 };
 
 } // namesapce util3ds
