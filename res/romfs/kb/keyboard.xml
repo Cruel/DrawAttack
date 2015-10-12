@@ -1,0 +1,152 @@
+<keyboard image="keyboard.png" default-layout="lowercase">
+	<style name="basic">
+		<state name="default">
+			<text fontsize="12" offsetx="10" offsety="5" color="#FFFFFFFF"></text>
+			<image x="0" y="0" w="28" h="28"></image>
+		</state>
+		<state name="active">
+			<text fontsize="12" offsetx="11" offsety="6" color="#FFFFFFFF"></text>
+			<image x="28" y="0" w="28" h="28"></image>
+		</state>
+	</style>
+	<style name="spacebar">
+		<state name="default"><image x="0" y="56" w="128" h="28"></image></state>
+		<state name="active"><image x="0" y="84" w="128" h="28"></image></state>
+	</style>
+	<style name="special">
+		<state name="default">
+			<text fontsize="12" offsetx="7" offsety="5" color="#FFFFFFFF"></text>
+			<image x="0" y="28" w="56" h="28"></image>
+		</state>
+		<state name="active">
+			<text fontsize="12" offsetx="8" offsety="6" color="#FFFFFFFF"></text>
+			<image x="56" y="28" w="56" h="28"></image>
+		</state>
+	</style>
+	<style name="enter">
+		<state name="default"><image x="56" y="0" w="56" h="28"></image></state>
+		<state name="active"><image x="128" y="56" w="56" h="28"></image></state>
+	</style>
+	<style name="shift">
+		<state name="default"><image x="145" y="0" w="56" h="28"></image></state>
+		<state name="active"><image x="145" y="28" w="56" h="28"></image></state>
+	</style>
+	<style name="backspace">
+		<state name="default"><image x="112" y="0" w="33" h="23"></image></state>
+		<state name="active"><image x="112" y="23" w="33" h="23"></image></state>
+	</style>
+	<style name="input">
+		<state name="default">
+			<text fontsize="14" offsetx="-20" offsety="4" color="#FFFFFFFF"></text>
+			<image x="255" y="0" w="1" h="28"></image>
+		</state>
+		<state name="active"><image x="255" y="0" w="1" h="28"></image></state>
+	</style>
+
+	<input style="input" x="0" y="58" w="320" h="28" max-width="260" cursor-color="#FFFFFFFF" cursor-height="22"></input>
+
+	<layout name="lowercase" label="abc123">
+		<button style="basic" x="6" y="88" w="28" h="28">1</button>
+		<button style="basic" x="36" y="88" w="28" h="28">2</button>
+		<button style="basic" x="66" y="88" w="28" h="28">3</button>
+		<button style="basic" x="96" y="88" w="28" h="28">4</button>
+		<button style="basic" x="126" y="88" w="28" h="28">5</button>
+		<button style="basic" x="156" y="88" w="28" h="28">6</button>
+		<button style="basic" x="186" y="88" w="28" h="28">7</button>
+		<button style="basic" x="216" y="88" w="28" h="28">8</button>
+		<button style="basic" x="246" y="88" w="28" h="28">9</button>
+		<button style="basic" x="276" y="88" w="28" h="28">0</button>
+
+		<button style="basic" x="10" y="118" w="28" h="28">q</button>
+		<button style="basic" x="40" y="118" w="28" h="28">w</button>
+		<button style="basic" x="70" y="118" w="28" h="28">e</button>
+		<button style="basic" x="100" y="118" w="28" h="28">r</button>
+		<button style="basic" x="130" y="118" w="28" h="28">t</button>
+		<button style="basic" x="160" y="118" w="28" h="28">y</button>
+		<button style="basic" x="190" y="118" w="28" h="28">u</button>
+		<button style="basic" x="220" y="118" w="28" h="28">i</button>
+		<button style="basic" x="250" y="118" w="28" h="28">o</button>
+		<button style="basic" x="280" y="118" w="28" h="28">p</button>
+
+		<button style="basic" x="18" y="148" w="28" h="28">a</button>
+		<button style="basic" x="48" y="148" w="28" h="28">s</button>
+		<button style="basic" x="78" y="148" w="28" h="28">d</button>
+		<button style="basic" x="108" y="148" w="28" h="28">f</button>
+		<button style="basic" x="138" y="148" w="28" h="28">g</button>
+		<button style="basic" x="168" y="148" w="28" h="28">h</button>
+		<button style="basic" x="198" y="148" w="28" h="28">j</button>
+		<button style="basic" x="228" y="148" w="28" h="28">k</button>
+		<button style="basic" x="258" y="148" w="28" h="28">l</button>
+		<button style="basic" x="288" y="148" w="28" h="28">'</button>
+
+		<button style="basic" x="30" y="178" w="28" h="28">z</button>
+		<button style="basic" x="60" y="178" w="28" h="28">x</button>
+		<button style="basic" x="90" y="178" w="28" h="28">c</button>
+		<button style="basic" x="120" y="178" w="28" h="28">v</button>
+		<button style="basic" x="150" y="178" w="28" h="28">b</button>
+		<button style="basic" x="180" y="178" w="28" h="28">n</button>
+		<button style="basic" x="210" y="178" w="28" h="28">m</button>
+		<button type="layoutchangetemp" layout="uppercase" style="shift" x="250" y="178" w="56" h="28"></button>
+
+		<button style="basic" x="194" y="208" w="28" h="28">,</button>
+		<button style="basic" x="224" y="208" w="28" h="28">.</button>
+
+		<button type="backspace" style="backspace" x="280" y="60" w="33" h="23"></button>
+
+		<button style="spacebar" x="66" y="208" w="126" h="28">&#32;</button>
+		<button type="enter" style="enter" x="254" y="208" w="56" h="28"></button>
+		<button type="layoutchange" layout="uppercase" style="special" x="5" y="208" w="58" h="28">ABC?#%</button>
+	</layout>
+	<layout name="uppercase" label="ABC?#%">
+		<button style="basic" x="6" y="88" w="28" h="28">!</button>
+		<button style="basic" x="36" y="88" w="28" h="28">@</button>
+		<button style="basic" x="66" y="88" w="28" h="28">#</button>
+		<button style="basic" x="96" y="88" w="28" h="28">$</button>
+		<button style="basic" x="126" y="88" w="28" h="28">%</button>
+		<button style="basic" x="156" y="88" w="28" h="28">^</button>
+		<button style="basic" x="186" y="88" w="28" h="28">&amp;</button>
+		<button style="basic" x="216" y="88" w="28" h="28">*</button>
+		<button style="basic" x="246" y="88" w="28" h="28">(</button>
+		<button style="basic" x="276" y="88" w="28" h="28">)</button>
+
+		<button style="basic" x="10" y="118" w="28" h="28">Q</button>
+		<button style="basic" x="40" y="118" w="28" h="28">W</button>
+		<button style="basic" x="70" y="118" w="28" h="28">E</button>
+		<button style="basic" x="100" y="118" w="28" h="28">R</button>
+		<button style="basic" x="130" y="118" w="28" h="28">T</button>
+		<button style="basic" x="160" y="118" w="28" h="28">Y</button>
+		<button style="basic" x="190" y="118" w="28" h="28">U</button>
+		<button style="basic" x="220" y="118" w="28" h="28">I</button>
+		<button style="basic" x="250" y="118" w="28" h="28">O</button>
+		<button style="basic" x="280" y="118" w="28" h="28">P</button>
+
+		<button style="basic" x="18" y="148" w="28" h="28">A</button>
+		<button style="basic" x="48" y="148" w="28" h="28">S</button>
+		<button style="basic" x="78" y="148" w="28" h="28">D</button>
+		<button style="basic" x="108" y="148" w="28" h="28">F</button>
+		<button style="basic" x="138" y="148" w="28" h="28">G</button>
+		<button style="basic" x="168" y="148" w="28" h="28">H</button>
+		<button style="basic" x="198" y="148" w="28" h="28">J</button>
+		<button style="basic" x="228" y="148" w="28" h="28">K</button>
+		<button style="basic" x="258" y="148" w="28" h="28">L</button>
+		<button style="basic" x="288" y="148" w="28" h="28">"</button>
+
+		<button style="basic" x="30" y="178" w="28" h="28">Z</button>
+		<button style="basic" x="60" y="178" w="28" h="28">X</button>
+		<button style="basic" x="90" y="178" w="28" h="28">C</button>
+		<button style="basic" x="120" y="178" w="28" h="28">V</button>
+		<button style="basic" x="150" y="178" w="28" h="28">B</button>
+		<button style="basic" x="180" y="178" w="28" h="28">N</button>
+		<button style="basic" x="210" y="178" w="28" h="28">M</button>
+		<button type="layoutchange" layout="lowercase" style="shift" x="250" y="178" w="56" h="28"></button>
+
+		<button style="basic" x="194" y="208" w="28" h="28">-</button>
+		<button style="basic" x="224" y="208" w="28" h="28">?</button>
+
+		<button type="backspace" style="backspace" x="280" y="60" w="33" h="23"></button>
+
+		<button style="spacebar" x="66" y="208" w="126" h="28">&#32;</button>
+		<button type="enter" style="enter" x="254" y="208" w="56" h="28"></button>
+		<button type="layoutchange" layout="lowercase" style="special" x="5" y="208" w="58" h="28">abc123</button>
+	</layout>
+</keyboard>
