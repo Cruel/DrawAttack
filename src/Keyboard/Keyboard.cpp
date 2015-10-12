@@ -303,7 +303,7 @@ bool Keyboard::processEvents(cpp3ds::Event &event)
 		if (inputBounds.contains(event.touch.x, event.touch.y)) {
 			cpp3ds::String inputString = m_input.text.getString();
 			cpp3ds::Text testText("", *m_input.text.getFont(), m_input.text.getCharacterSize());
-			float clickedPosition = inputBounds.left + inputBounds.width - event.touch.x - cursorPadding;
+			float clickedPosition = inputBounds.left + inputBounds.width - event.touch.x - cursorPadding + 1.f;
 			int i;
 			for (i = 0; i <= inputString.getSize(); i++) {
 				testText.setString(inputString.substring(inputString.getSize() - i, i));
