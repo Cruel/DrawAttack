@@ -8,9 +8,9 @@ namespace util3ds {
 
 Keyboard::Keyboard() {
 	m_loaded = false;
-	m_active = true;
 	m_activeButton = NULL;
 	m_usingTempLayout = false;
+	m_needsUpdate = false;
 }
 
 
@@ -101,8 +101,8 @@ void Keyboard::loadFromFile(const std::string &filename)
 		}
 	}
 
-	updateVertices();
 	m_loaded = true;
+	updateVertices();
 }
 
 
@@ -281,7 +281,7 @@ void Keyboard::updateVertices()
 }
 
 
-bool Keyboard::processEvents(cpp3ds::Event &event)
+bool Keyboard::processEvents(const cpp3ds::Event &event)
 {
 	if (!m_loaded)
 		return true;
@@ -333,7 +333,7 @@ bool Keyboard::processEvents(cpp3ds::Event &event)
 			switch (m_activeButton->type) {
 				case Enter:
 					if (!m_input.data.isEmpty()) {
-						std::cout << m_input.data.toAnsiString() << std::endl;
+						m_strings.push(m_input.data);
 						m_input.data.clear();
 						m_input.text.setString(m_input.data);
 						m_input.cursorPosition = 0;
@@ -376,6 +376,7 @@ bool Keyboard::processEvents(cpp3ds::Event &event)
 	if (event.type == cpp3ds::Event::TouchMoved) {
 		if (m_activeButton != NULL && !m_activeButton->rect.contains(event.touch.x, event.touch.y)) {
 			m_activeButton = NULL;
+			m_needsUpdate = true;
 		}
 	}
 
@@ -407,5 +408,16 @@ void Keyboard::draw(cpp3ds::RenderTarget &target, cpp3ds::RenderStates states) c
 	else if (m_cursorClock.getElapsedTime() > cpp3ds::seconds(0.5f))
 		target.draw(m_cursor);
 }
+
+
+bool Keyboard::popString(cpp3ds::String& string)
+{
+	if (m_strings.empty())
+		return false;
+	string = m_strings.front();
+	m_strings.pop();
+	return true;
+}
+
 
 } // namesapce util3ds

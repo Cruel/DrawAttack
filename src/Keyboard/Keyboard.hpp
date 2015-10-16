@@ -10,8 +10,9 @@ class Keyboard: public cpp3ds::Drawable {
 public:
 	Keyboard();
 	void loadFromFile(const std::string& filename);
-	bool processEvents(cpp3ds::Event& event);
+	bool processEvents(const cpp3ds::Event& event);
 	void update(float delta);
+	bool popString(cpp3ds::String& string);
 
 protected:
 	void draw(cpp3ds::RenderTarget& target, cpp3ds::RenderStates states) const;
@@ -52,6 +53,7 @@ private:
 		std::vector<Button> buttons;
 	};
 	struct Input : Button {
+		Input(): maxWidth(200), cursorPosition(0) {}
 		int maxWidth;
 		int cursorPosition;
 	};
@@ -79,8 +81,9 @@ private:
 	unsigned char         m_tempLayoutIndex;
 	bool                  m_usingTempLayout;
 	bool                  m_loaded;
-	bool                  m_active;
 	bool                  m_needsUpdate;
+
+	std::queue<cpp3ds::String> m_strings;
 };
 
 } // namesapce util3ds
