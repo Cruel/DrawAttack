@@ -1,0 +1,4 @@
+horse
+treasure
+queen
+computer
