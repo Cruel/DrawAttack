@@ -4,29 +4,26 @@
 namespace DrawAttack {
 
 
-DrawingBoard::DrawingBoard() {
+DrawingBoard::DrawingBoard()
+{
 	m_activeLine.setPrimitiveType(cpp3ds::Triangles);
 	m_color == cpp3ds::Color::Black;
 	m_timeLimit = cpp3ds::milliseconds(20);
 }
 
 
-void DrawingBoard::create(float width, float height) {
-	m_lines.clear();
-
+void DrawingBoard::create(float width, float height)
+{
+	clear();
 	m_size = cpp3ds::Vector2f(width, height);
 	m_background.setSize(m_size);
-	m_background.setFillColor(cpp3ds::Color(200, 200, 200));
-	m_background.setOutlineThickness(3);
-	m_background.setOutlineColor(cpp3ds::Color::White);
+	m_background.setFillColor(cpp3ds::Color::White);
 }
 
 
-void DrawingBoard::draw(cpp3ds::RenderTarget &target, cpp3ds::RenderStates states) const {
-	// apply the entity's transform -- combine it with the one that was passed by the caller
-	states.transform *= getTransform(); // getTransform() is defined by sf::Transformable
-
-	// apply the texture
+void DrawingBoard::draw(cpp3ds::RenderTarget &target, cpp3ds::RenderStates states) const
+{
+	states.transform *= getTransform();
 //	states.texture = &m_texture;
 
 	target.draw(m_background, states);
@@ -37,12 +34,14 @@ void DrawingBoard::draw(cpp3ds::RenderTarget &target, cpp3ds::RenderStates state
 }
 
 
-void DrawingBoard::addPoint(const cpp3ds::Vector2f &point) {
+void DrawingBoard::addPoint(const cpp3ds::Vector2f &point)
+{
 	addPoint(point.x, point.y);
 }
 
 
-void DrawingBoard::addPoint(float x, float y) {
+void DrawingBoard::addPoint(float x, float y)
+{
 	if (x < 0 || y < 0 || x > m_size.x || y > m_size.y)
 		return;
 	if (m_lastPoint.x == x && m_lastPoint.y == y)
@@ -60,7 +59,8 @@ void DrawingBoard::addPoint(float x, float y) {
 }
 
 
-void DrawingBoard::endLine() {
+void DrawingBoard::endLine()
+{
 	if (m_activeLine.getVertexCount() > 2) {
 		m_lines.push_back(m_activeLine);
 	}
@@ -70,7 +70,8 @@ void DrawingBoard::endLine() {
 }
 
 
-void DrawingBoard::addSegment(float x, float y) {
+void DrawingBoard::addSegment(float x, float y)
+{
 	float xdiff = x - m_lastPoint.x;
 	float ydiff = y - m_lastPoint.y;
 	float angle = (xdiff == 0) ? 1.57079632679489661923f : std::atan(ydiff / xdiff);
@@ -93,8 +94,16 @@ void DrawingBoard::addSegment(float x, float y) {
 }
 
 
-void DrawingBoard::setLineThickness(float thickness) {
+void DrawingBoard::setLineThickness(float thickness)
+{
 	m_thickness = thickness;
+}
+
+
+void DrawingBoard::clear()
+{
+	m_lines.clear();
+	m_activeLine.clear();
 }
 
 

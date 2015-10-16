@@ -18,6 +18,7 @@ public:
 
 	void setLineThickness(float thickness);
 
+	void clear();
 	void endLine();
 
 private:
