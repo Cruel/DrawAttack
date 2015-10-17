@@ -32,6 +32,8 @@ DrawAttack::~DrawAttack()
 
 void DrawAttack::update(float delta)
 {
+	// Need to update before checking if empty
+	m_stateStack.update(delta);
 	if (m_stateStack.isEmpty())
 		exit();
 
@@ -40,8 +42,6 @@ void DrawAttack::update(float delta)
 		textFPS.setString(_("%.1f fps", 1.f / delta));
 		textFPS.setPosition(395 - textFPS.getGlobalBounds().width, 200);
 	}
-
-	m_stateStack.update(delta);
 }
 
 void DrawAttack::processEvent(Event& event)
