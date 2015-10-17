@@ -28,12 +28,38 @@ set(SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/src/DrawAttack.cpp
 	${PROJECT_SOURCE_DIR}/src/DrawingBoard.cpp
 	${PROJECT_SOURCE_DIR}/src/TweenTransformable.cpp
-	${PROJECT_SOURCE_DIR}/src/RoundedLine.cpp
+	${PROJECT_SOURCE_DIR}/src/ServerListItem.cpp
+	${PROJECT_SOURCE_DIR}/src/ServerList.cpp
+	${PROJECT_SOURCE_DIR}/src/GUI/Button.cpp
+	${PROJECT_SOURCE_DIR}/src/Keyboard/Keyboard.cpp
+	${PROJECT_SOURCE_DIR}/src/Keyboard/tinyxml2.cpp
+	${PROJECT_SOURCE_DIR}/src/States/StateStack.cpp
+	${PROJECT_SOURCE_DIR}/src/States/State.cpp
+	${PROJECT_SOURCE_DIR}/src/States/TitleState.cpp
+	${PROJECT_SOURCE_DIR}/src/States/ServerSelectState.cpp
+	${PROJECT_SOURCE_DIR}/src/States/PlayState.cpp
+	${PROJECT_SOURCE_DIR}/src/States/DisconnectedState.cpp
+	${PROJECT_SOURCE_DIR}/src/States/NameSelectState.cpp
+	${PROJECT_SOURCE_DIR}/src/Network/Client.cpp
+	${PROJECT_SOURCE_DIR}/src/Network/Player.cpp
 	${TWEEN_ENGINE_SOURCE}
+)
+set(SERVER_SOURCE_FILES
+    ${PROJECT_SOURCE_DIR}/src/server.cpp
+    ${PROJECT_SOURCE_DIR}/src/Network/Server.cpp
+    ${PROJECT_SOURCE_DIR}/src/Network/Player.cpp
 )
 
 set(SHADER_AS nihstro)
 FILE(GLOB_RECURSE SHADER_FILES ${PROJECT_SOURCE_DIR}/res/shaders/[^.]*)
+
+# Server target
+include_directories(${CPP3DS}/include)
+link_directories(${CPP3DS}/lib)
+add_executable(${PROJECT_NAME}-server ${SERVER_SOURCE_FILES})
+set_target_properties(${PROJECT_NAME}-server PROPERTIES COMPILE_DEFINITIONS "EMULATION")
+set_target_properties(${PROJECT_NAME}-server PROPERTIES COMPILE_FLAGS "-std=c++11")
+target_link_libraries(${PROJECT_NAME}-server cpp3ds-emu sfml-system sfml-network)
 
 ##################################################
 # Don't usually need to change anything below
@@ -45,4 +71,4 @@ set(CPP3DS_ARM_LIBS cpp3ds-window cpp3ds-graphics cpp3ds-audio cpp3ds-network cp
 set(CPP3DS_EMU_LIBS cpp3ds-emu sfml-graphics sfml-window sfml-system sfml-network sfml-audio GLEW GL jpeg freetype vorbisenc vorbisfile vorbis ogg)
 
 add_subdirectory(${CPP3DS}/cmake/template_arm build/arm)
-#add_subdirectory(${CPP3DS}/cmake/template_emu build/emu)
+add_subdirectory(${CPP3DS}/cmake/template_emu build/emu)
