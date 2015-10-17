@@ -7,9 +7,23 @@ namespace DrawAttack {
 ServerSelectState::ServerSelectState(StateStack& stack, Context& context)
 : State(stack, context)
 {
-	m_button.setSize(cpp3ds::Vector2f(80, 28));
-	m_button.setPosition(230, 200);
-	m_button.setFillColor(cpp3ds::Color::Blue);
+	m_button.setString(_("Connect"));
+	m_button.setColor(cpp3ds::Color::Blue);
+	m_button.setActiveColor(cpp3ds::Color::Red);
+	m_button.setTextColor(cpp3ds::Color::Red);
+	m_button.setTextActiveColor(cpp3ds::Color::Blue);
+
+	m_button.onClick([this]{
+		ServerListItem serverItem = m_serverList.getSelectedItem();
+		std::cout << serverItem.getIp() << std::endl;
+		if (getContext().client.connect(serverItem.getIp(),
+										serverItem.getPort()) == cpp3ds::Socket::Done)
+		{
+			requestStackPop();
+			requestStackPush(States::Play);
+			requestStackPush(States::NameSelect);
+		}
+	});
 }
 
 void ServerSelectState::renderTopScreen(cpp3ds::Window& window)
@@ -25,24 +39,17 @@ void ServerSelectState::renderBottomScreen(cpp3ds::Window& window)
 
 bool ServerSelectState::update(float delta)
 {
+	m_button.setPosition(315 - m_button.getSize().x, 235 - m_button.getSize().y);
+	m_button.update(delta);
+
 	m_serverList.update(delta);
+
 	return true;
 }
 
 bool ServerSelectState::processEvent(const cpp3ds::Event& event)
 {
-	if (event.type == cpp3ds::Event::TouchEnded) {
-		if (m_button.getGlobalBounds().contains(event.touch.x, event.touch.y)) {
-			std::cout << m_serverList.getSelectedItem().getIp() << std::endl;
-			if (getContext().client.connect(m_serverList.getSelectedItem().getIp(),
-											m_serverList.getSelectedItem().getPort()) == cpp3ds::Socket::Done)
-			{
-				requestStackPop();
-				requestStackPush(States::Play);
-				requestStackPush(States::NameSelect);
-			}
-		}
-	}
+	m_button.processEvent(event);
 
 	return m_serverList.processEvent(event);
 }

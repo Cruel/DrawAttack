@@ -3,8 +3,7 @@
 
 #include "State.hpp"
 #include "../ServerList.hpp"
-#include <cpp3ds/Graphics/Sprite.hpp>
-#include <cpp3ds/Graphics/Text.hpp>
+#include "../GUI/Button.hpp"
 
 namespace DrawAttack {
 
@@ -20,7 +19,7 @@ public:
 
 private:
 	ServerList m_serverList;
-	cpp3ds::RectangleShape m_button;
+	util3ds::Button m_button;
 };
 
 } // namespace DrawAttack
