@@ -1,13 +1,13 @@
 #include "Button.hpp"
 
 
-namespace util3ds {
+namespace gui3ds {
 
 Button::Button()
 : m_autoSize(true)
 , m_needsUpdate(true)
 , m_active(false)
-, m_padding(cpp3ds::Vector2f(10, 10))
+, m_backgroundColor(cpp3ds::Color::White)
 {
 
 }
@@ -15,24 +15,13 @@ Button::Button()
 
 void Button::draw(cpp3ds::RenderTarget &target, cpp3ds::RenderStates states) const
 {
-	states.transform *= getTransform();
-//	states.texture = &m_texture;
+	ensureUpdate();
 
-	target.draw(m_rectangle, states);
+	states.transform *= getTransform();
+
+	NinePatch::draw(target, states);
 	if (!m_text.getString().isEmpty())
 		target.draw(m_text, states);
-}
-
-
-void Button::setTexture(const cpp3ds::Texture* texture, bool resetRect)
-{
-	m_rectangle.setTexture(texture, resetRect);
-}
-
-
-const cpp3ds::Texture* Button::getTexture() const
-{
-	return m_rectangle.getTexture();
 }
 
 
@@ -49,16 +38,17 @@ const cpp3ds::Vector2f& Button::getTextOffset() const
 }
 
 
-void Button::setSize(const cpp3ds::Vector2f& size)
+void Button::setContentSize(const cpp3ds::Vector2f& size)
 {
-	m_rectangle.setSize(size);
+	NinePatch::setContentSize(size);
 	m_autoSize = false;
 }
 
 
 const cpp3ds::Vector2f& Button::getSize() const
 {
-	return m_rectangle.getSize();
+	ensureUpdate();
+	return m_size;
 }
 
 
@@ -72,6 +62,30 @@ void Button::setString(const cpp3ds::String& string)
 const cpp3ds::String& Button::getString() const
 {
 	return m_text.getString();
+}
+
+
+void Button::setFont(const cpp3ds::Font& font)
+{
+	m_text.setFont(font);
+}
+
+
+const cpp3ds::Font* Button::getFont() const
+{
+	return m_text.getFont();
+}
+
+
+void Button::setTextSize(unsigned int size)
+{
+	m_text.setCharacterSize(size);
+}
+
+
+unsigned int Button::getTextSize() const
+{
+	return m_text.getCharacterSize();
 }
 
 
@@ -142,6 +156,7 @@ bool Button::processEvent(const cpp3ds::Event &event)
 		{
 			m_active = true;
 			m_needsUpdate = true;
+			return false;
 		}
 	}
 
@@ -152,14 +167,18 @@ bool Button::processEvent(const cpp3ds::Event &event)
 			m_needsUpdate = true;
 			if (m_clickFunction)
 				m_clickFunction();
+			return false;
 		}
 	}
 
 	if (event.type == cpp3ds::Event::TouchMoved)
 	{
-		if (m_active && !m_rect.contains(event.touch.x, event.touch.y)) {
-			m_active = false;
-			m_needsUpdate = true;
+		if (m_active) {
+			if (!m_rect.contains(event.touch.x, event.touch.y)) {
+				m_active = false;
+				m_needsUpdate = true;
+			}
+			return false;
 		}
 	}
 
@@ -167,24 +186,31 @@ bool Button::processEvent(const cpp3ds::Event &event)
 }
 
 
-bool Button::update(const float delta)
+void Button::ensureUpdate() const
 {
-	if (m_needsUpdate) {
+	if (m_needsUpdate)
+	{
 		if (m_autoSize) {
-			cpp3ds::Vector2f size;
-			size.x = m_text.getLocalBounds().width + m_padding.x * 2;
-			size.y = m_text.getLocalBounds().height + m_padding.y * 2;
-			setSize(size);
+			NinePatch::setContentSize(cpp3ds::Vector2f(m_text.getLocalBounds().width, m_text.getLocalBounds().height));
 
-			m_text.setOrigin(m_text.getLocalBounds().left + m_text.getLocalBounds().width/2, m_text.getLocalBounds().top + m_text.getLocalBounds().height/2);
-			m_text.setPosition(getSize().x/2, getSize().y/2);
+			cpp3ds::FloatRect textBounds = m_text.getLocalBounds();
+			cpp3ds::FloatRect padding = getPadding();
+			cpp3ds::Vector2f contentSize = getContentSize();
+
+			m_size.x = contentSize.x + getTexture()->getSize().x - padding.width;
+			m_size.y = contentSize.y + getTexture()->getSize().y - padding.height;
+
+			m_text.setOrigin(std::floor(textBounds.left + textBounds.width/2),
+			                 std::floor(textBounds.top + textBounds.height/2));
+			m_text.setPosition(std::floor(padding.left + contentSize.x/2 + m_textOffset.x),
+			                   std::floor(padding.top + contentSize.y/2 + m_textOffset.y));
 		}
 
 		if (m_active) {
-			m_rectangle.setFillColor(m_backgroundActiveColor);
+			NinePatch::setColor(m_backgroundActiveColor);
 			m_text.setColor(m_textActiveColor);
 		} else {
-			m_rectangle.setFillColor(m_backgroundColor);
+			NinePatch::setColor(m_backgroundColor);
 			m_text.setColor(m_textColor);
 		}
 
@@ -193,10 +219,8 @@ bool Button::update(const float delta)
 
 	m_rect.left = getPosition().x;
 	m_rect.top = getPosition().y;
-	m_rect.width = getSize().x;
-	m_rect.height = getSize().y;
-
-	return true;
+	m_rect.width = m_size.x;
+	m_rect.height = m_size.y;
 }
 
 
@@ -206,4 +230,4 @@ void Button::onClick(const std::function<void()>& callback)
 }
 
 
-} // namespace util3ds
+} // namespace gui3ds
