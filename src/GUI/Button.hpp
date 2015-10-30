@@ -19,6 +19,8 @@ public:
 
 	void autoSize();
 	void setContentSize(const cpp3ds::Vector2f& size);
+	void setContentSize(float width, float height);
+	const cpp3ds::Vector2f& getContentSize() const;
 	const cpp3ds::Vector2f& getSize() const;
 
 	void setString(const cpp3ds::String& string);

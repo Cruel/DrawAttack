@@ -19,7 +19,7 @@ public:
 	static const int ORIGIN_Y    = 9;
 	static const int ORIGIN_XY   = 10;
 
-private:
+protected:
 	virtual int getValues(int tweenType, float *returnValues);
 	virtual void setValues(int tweenType, float *newValues);
 };

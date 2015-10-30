@@ -45,6 +45,20 @@ void Button::setContentSize(const cpp3ds::Vector2f& size)
 }
 
 
+void Button::setContentSize(float width, float height)
+{
+	NinePatch::setContentSize(width, height);
+	m_autoSize = false;
+}
+
+
+const cpp3ds::Vector2f& Button::getContentSize() const
+{
+	ensureUpdate();
+	return NinePatch::getContentSize();
+}
+
+
 const cpp3ds::Vector2f& Button::getSize() const
 {
 	ensureUpdate();
@@ -195,7 +209,7 @@ void Button::ensureUpdate() const
 
 			cpp3ds::FloatRect textBounds = m_text.getLocalBounds();
 			cpp3ds::FloatRect padding = getPadding();
-			cpp3ds::Vector2f contentSize = getContentSize();
+			cpp3ds::Vector2f contentSize = NinePatch::getContentSize();
 
 			m_size.x = contentSize.x + getTexture()->getSize().x - padding.width;
 			m_size.y = contentSize.y + getTexture()->getSize().y - padding.height;
