@@ -12,7 +12,7 @@ namespace DrawAttack {
 			Play,
 			Loading,
 			Pause,
-			Disconnected,
+			TransitionMessage,
 		};
 	}
 }

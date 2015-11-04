@@ -4,11 +4,13 @@
 
 namespace DrawAttack {
 
-State::Context::Context(Client& client, cpp3ds::String& name, cpp3ds::String& data)
+State::Context::Context(Client& client, cpp3ds::String& name, cpp3ds::String& data, TransitionData& transition)
 : client(client)
 , name(name)
 , data(data)
+, transition(transition)
 {
+	transition.nextStateID = States::None;
 }
 
 State::State(StateStack& stack, Context& context)
@@ -26,12 +28,12 @@ void State::requestStackPush(States::ID stateID)
 	m_stack->pushState(stateID);
 }
 
-void State::requestStackPop()
+void State::requestStackPop(States::ID stateID)
 {
-	m_stack->popState();
+	m_stack->popState(stateID);
 }
 
-void State::requestStateClear()
+void State::requestStackClear()
 {
 	m_stack->clearStates();
 }

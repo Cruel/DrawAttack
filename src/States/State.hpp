@@ -24,12 +24,19 @@ class State
 public:
 	typedef std::unique_ptr<State> Ptr;
 
+	struct TransitionData
+	{
+		std::string message;
+		States::ID  nextStateID;
+	};
+
 	struct Context
 	{
-		Context(Client& client, cpp3ds::String& name, cpp3ds::String& data);
+		Context(Client& client, cpp3ds::String& name, cpp3ds::String& data, TransitionData& transition);
 		Client& client;
 		cpp3ds::String& name;
 		cpp3ds::String& data;
+		TransitionData& transition;
 	};
 
 	State(StateStack& stack, Context& context);
@@ -42,8 +49,8 @@ public:
 
 protected:
 	void requestStackPush(States::ID stateID);
-	void requestStackPop();
-	void requestStateClear();
+	void requestStackPop(States::ID stateID = States::None);
+	void requestStackClear();
 
 	Context getContext() const;
 
