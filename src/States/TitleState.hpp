@@ -19,10 +19,11 @@ public:
 
 
 private:
-	cpp3ds::Text mText;
+	cpp3ds::Text m_textTitle;
+	cpp3ds::Text m_text;
 
-	bool mShowText;
-	float mTextEffectTime;
+	bool m_showText;
+	float m_textEffectTime;
 };
 
 } // namespace DrawAttack

@@ -6,17 +6,27 @@ namespace DrawAttack {
 
 TitleState::TitleState(StateStack& stack, Context& context)
 : State(stack, context)
-, mText()
-, mShowText(true)
-, mTextEffectTime(0)
+, m_text()
+, m_showText(true)
+, m_textEffectTime(0)
 {
-	mText.setString("Press any key to start");
+	m_textTitle.setCharacterSize(50);
+	m_textTitle.setStyle(cpp3ds::Text::Bold);
+	m_textTitle.setColor(cpp3ds::Color::Black);
+	m_textTitle.setString(_("DrawAttack"));
+	m_textTitle.setPosition(std::floor(200.f - m_textTitle.getLocalBounds().width / 2), 10.f);
+
+	m_text.setCharacterSize(16);
+	m_text.setColor(cpp3ds::Color::Black);
+	m_text.setString(_("Press any key to start"));
+	m_text.setPosition(std::floor(200.f - m_text.getLocalBounds().width / 2), 150.f);
 }
 
 void TitleState::renderTopScreen(cpp3ds::Window& window)
 {
-	if (mShowText)
-		window.draw(mText);
+	window.draw(m_textTitle);
+	if (m_showText)
+		window.draw(m_text);
 }
 
 void TitleState::renderBottomScreen(cpp3ds::Window& window)
@@ -26,12 +36,12 @@ void TitleState::renderBottomScreen(cpp3ds::Window& window)
 
 bool TitleState::update(float delta)
 {
-	mTextEffectTime += delta;
+	m_textEffectTime += delta;
 
-	if (mTextEffectTime >= 0.5f)
+	if (m_textEffectTime >= 0.5f)
 	{
-		mShowText = !mShowText;
-		mTextEffectTime = 0;
+		m_showText = !m_showText;
+		m_textEffectTime = 0;
 	}
 
 	return true;
@@ -42,8 +52,13 @@ bool TitleState::processEvent(const cpp3ds::Event& event)
 	// If any key is pressed, trigger the next screen
 	if (event.type == cpp3ds::Event::KeyPressed)
 	{
-		requestStackPop();
-		requestStackPush(States::Menu);
+		if (cpp3ds::Service::isEnabled(cpp3ds::NETWORK)) {
+			requestStackPop();
+			requestStackPush(States::ServerSelect);
+		} else {
+			getContext().transition.message = _("No internet connection.\nConnect to internet and retry.");
+			requestStackPush(States::TransitionMessage);
+		}
 	}
 
 	return true;
