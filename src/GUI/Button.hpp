@@ -10,6 +10,11 @@ namespace gui3ds {
 
 class Button : public NinePatch, public util3ds::TweenTransformable {
 public:
+	static const int COLOR_RGB   = 11;
+	static const int COLOR_ALPHA = 12;
+	static const int CONTENT_X   = 13;
+	static const int TEXTCOLOR_ALPHA = 14;
+
 	Button();
 
 	bool processEvent(const cpp3ds::Event& event);
@@ -26,11 +31,7 @@ public:
 	void setString(const cpp3ds::String& string);
 	const cpp3ds::String& getString() const;
 
-	void setFont(const cpp3ds::Font& font);
-	const cpp3ds::Font* getFont() const;
-
-	void setTextSize(unsigned int size);
-	unsigned int getTextSize() const;
+	cpp3ds::Text& getText();
 
 	void setTextColor(const cpp3ds::Color& color);
 	const cpp3ds::Color& getTextColor() const;
@@ -47,6 +48,8 @@ public:
 	void onClick(const std::function<void()>& callback);
 
 protected:
+	virtual int getValues(int tweenType, float *returnValues);
+	virtual void setValues(int tweenType, float *newValues);
 	virtual void draw(cpp3ds::RenderTarget& target, cpp3ds::RenderStates states) const;
 	void ensureUpdate() const;
 

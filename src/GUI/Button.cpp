@@ -79,30 +79,6 @@ const cpp3ds::String& Button::getString() const
 }
 
 
-void Button::setFont(const cpp3ds::Font& font)
-{
-	m_text.setFont(font);
-}
-
-
-const cpp3ds::Font* Button::getFont() const
-{
-	return m_text.getFont();
-}
-
-
-void Button::setTextSize(unsigned int size)
-{
-	m_text.setCharacterSize(size);
-}
-
-
-unsigned int Button::getTextSize() const
-{
-	return m_text.getCharacterSize();
-}
-
-
 void Button::setTextColor(const cpp3ds::Color& color)
 {
 	m_textColor = color;
@@ -202,6 +178,9 @@ bool Button::processEvent(const cpp3ds::Event &event)
 
 void Button::ensureUpdate() const
 {
+	if (!getTexture())
+		return;
+
 	if (m_needsUpdate)
 	{
 		if (m_autoSize) {
@@ -241,6 +220,63 @@ void Button::ensureUpdate() const
 void Button::onClick(const std::function<void()>& callback)
 {
 	m_clickFunction = callback;
+}
+
+
+int Button::getValues(int tweenType, float *returnValues)
+{
+	switch (tweenType) {
+		case COLOR_RGB: {
+			cpp3ds::Color color = getColor();
+			returnValues[0] = color.r;
+			returnValues[1] = color.g;
+			returnValues[2] = color.b;
+			return 3;
+		}
+		case COLOR_ALPHA: returnValues[0] = getColor().a; return 1;
+		case CONTENT_X: returnValues[0] = getContentSize().x; return 1;
+		case TEXTCOLOR_ALPHA: returnValues[0] = getTextColor().a; return 1;
+		default:
+			return TweenTransformable::getValues(tweenType, returnValues);
+	}
+}
+
+
+void Button::setValues(int tweenType, float *newValues)
+{
+	switch (tweenType) {
+		case COLOR_RGB: {
+			cpp3ds::Color color;
+			color.r = std::max(std::min(newValues[0], 255.f), 0.f);
+			color.g = std::max(std::min(newValues[1], 255.f), 0.f);
+			color.b = std::max(std::min(newValues[2], 255.f), 0.f);
+			color.a = getColor().a;
+			setColor(color);
+			break;
+		}
+		case COLOR_ALPHA: {
+			cpp3ds::Color color = getColor();
+			color.a = std::max(std::min(newValues[0], 255.f), 0.f);
+			setColor(color);
+			break;
+		}
+		case CONTENT_X: setContentSize(cpp3ds::Vector2f(newValues[0], getContentSize().y)); break;
+		case TEXTCOLOR_ALPHA: {
+			cpp3ds::Color color = getTextColor();
+			color.a = std::max(std::min(newValues[0], 255.f), 0.f);
+			setTextColor(color);
+			break;
+		}
+		default:
+			TweenTransformable::setValues(tweenType, newValues);
+			break;
+	}
+}
+
+
+cpp3ds::Text &Button::getText()
+{
+	return m_text;
 }
 
 

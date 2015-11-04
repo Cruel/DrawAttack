@@ -6,6 +6,7 @@ NinePatch::NinePatch()
 : m_color(cpp3ds::Color::White)
 , m_padding(0,0,0,0)
 , m_needsUpdate(true)
+, m_texture(nullptr)
 {
 
 }
@@ -103,6 +104,10 @@ void NinePatch::ensureUpdate() const
 void NinePatch::updateRegions() const
 {
 	m_regions.clear();
+
+	if (!m_texture)
+		return;
+
 	cpp3ds::Image image = m_texture->copyToImage();
 
 	unsigned int x, y, last_x, last_y;

@@ -12,10 +12,6 @@ public:
 		Left,
 		Right,
 	};
-	static const int COLOR_RGB   = 11;
-	static const int COLOR_ALPHA = 12;
-	static const int CONTENT_X   = 13;
-	static const int TEXTCOLOR_ALPHA = 14;
 
 	SpeechBubble();
 	~SpeechBubble();
@@ -37,8 +33,6 @@ public:
 	void pushString(cpp3ds::String string);
 
 protected:
-	virtual int getValues(int tweenType, float *returnValues);
-	virtual void setValues(int tweenType, float *newValues);
 	void popStringAnimate();
 
 private:

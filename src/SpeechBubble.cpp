@@ -16,7 +16,7 @@ SpeechBubble::SpeechBubble()
 		m_textureRightBubble.loadFromFile("images/speech-bubble-right.9.png");
 
 	setSide(Left);
-	setTextSize(12);
+	getText().setCharacterSize(12);
 	setColor(cpp3ds::Color(150, 255, 255));
 	setTextOffset(cpp3ds::Vector2f(-1, -1));
 
@@ -46,57 +46,6 @@ SpeechBubble::Side SpeechBubble::getSide() const
 bool SpeechBubble::isVisible() const
 {
 	return m_visible;
-}
-
-
-int SpeechBubble::getValues(int tweenType, float *returnValues)
-{
-	switch (tweenType) {
-		case COLOR_RGB: {
-			cpp3ds::Color color = Button::getColor();
-			returnValues[0] = color.r;
-			returnValues[1] = color.g;
-			returnValues[2] = color.b;
-			return 3;
-		}
-		case COLOR_ALPHA: returnValues[0] = Button::getColor().a; return 1;
-		case CONTENT_X: returnValues[0] = getContentSize().x; return 1;
-		case TEXTCOLOR_ALPHA: returnValues[0] = getTextColor().a; return 1;
-		default:
-			return TweenTransformable::getValues(tweenType, returnValues);
-	}
-}
-
-
-void SpeechBubble::setValues(int tweenType, float *newValues)
-{
-	switch (tweenType) {
-		case COLOR_RGB: {
-			cpp3ds::Color color;
-			color.r = std::max(std::min(newValues[0], 255.f), 0.f);
-			color.g = std::max(std::min(newValues[1], 255.f), 0.f);
-			color.b = std::max(std::min(newValues[2], 255.f), 0.f);
-			color.a = Button::getColor().a;
-			Button::setColor(color);
-			break;
-		}
-		case COLOR_ALPHA: {
-			cpp3ds::Color color = Button::getColor();
-			color.a = std::max(std::min(newValues[0], 255.f), 0.f);
-			Button::setColor(color);
-			break;
-		}
-		case CONTENT_X: setContentSize(cpp3ds::Vector2f(newValues[0], getContentSize().y)); break;
-		case TEXTCOLOR_ALPHA: {
-			cpp3ds::Color color = getTextColor();
-			color.a = std::max(std::min(newValues[0], 255.f), 0.f);
-			setTextColor(color);
-			break;
-		}
-		default:
-			TweenTransformable::setValues(tweenType, newValues);
-			break;
-	}
 }
 
 
@@ -130,6 +79,11 @@ void SpeechBubble::popStringAnimate()
 				.ease(TweenEngine::TweenEquations::easeOutCubic)
 				.delay(0.15f)
 				.start(m_tweenManager);
+		TweenEngine::Tween::to(*this, SpeechBubble::POSITION_X, 0.15f)
+				.target(newPosition.x)
+				.ease(TweenEngine::TweenEquations::easeOutCubic)
+				.delay(0.15f)
+				.start(m_tweenManager);
 	} else {
 		setString(newString);
 		autoSize();
@@ -152,6 +106,12 @@ void SpeechBubble::popStringAnimate()
 	TweenEngine::Tween::to(*this, SpeechBubble::COLOR_RGB, 1.f)
 		.waypoint(m_color.r + 40, m_color.g + 40, m_color.b + 40)
 		.target(m_color.r, m_color.g, m_color.b)
+		.ease(TweenEngine::TweenEquations::easeOutCubic)
+		.delay(0.4f)
+		.start(m_tweenManager);
+	TweenEngine::Tween::to(*this, SpeechBubble::COLOR_ALPHA, 1.f)
+		.waypoint(m_color.a + 20.f)
+		.target(m_color.a)
 		.ease(TweenEngine::TweenEquations::easeOutCubic)
 		.delay(0.4f)
 		.start(m_tweenManager);
