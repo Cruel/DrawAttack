@@ -396,17 +396,22 @@ void Keyboard::draw(cpp3ds::RenderTarget &target, cpp3ds::RenderStates states) c
 	if (!m_loaded)
 		return;
 
-	target.draw(m_vertices, &m_texture);
+	states.transform *= getTransform();
+	states.texture = &m_texture;
+
+	target.draw(m_vertices, states);
+	states.texture = nullptr;
+
 	const Layout& layout = m_layouts[m_usingTempLayout ? m_tempLayoutIndex: m_layoutIndex];
 	for (const Button& button: layout.buttons) {
 		if (!button.text.getString().isEmpty())
-			target.draw(button.text);
+			target.draw(button.text, states);
 	}
-	target.draw(m_input.text);
+	target.draw(m_input.text, states);
 	if (m_cursorClock.getElapsedTime() > cpp3ds::seconds(1.f))
 		m_cursorClock.restart();
 	else if (m_cursorClock.getElapsedTime() > cpp3ds::seconds(0.5f))
-		target.draw(m_cursor);
+		target.draw(m_cursor, states);
 }
 
 

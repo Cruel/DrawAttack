@@ -3,10 +3,11 @@
 
 #include <cpp3ds/Graphics.hpp>
 #include "tinyxml2.h"
+#include "../TweenTransformable.hpp"
 
 namespace util3ds {
 
-class Keyboard: public cpp3ds::Drawable {
+class Keyboard: public cpp3ds::Drawable, public TweenTransformable {
 public:
 	Keyboard();
 	void loadFromFile(const std::string& filename);
