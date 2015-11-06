@@ -28,9 +28,13 @@ set(SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/src/DrawAttack.cpp
 	${PROJECT_SOURCE_DIR}/src/DrawingBoard.cpp
 	${PROJECT_SOURCE_DIR}/src/TweenTransformable.cpp
+	${PROJECT_SOURCE_DIR}/src/SpeechBubble.cpp
+	${PROJECT_SOURCE_DIR}/src/Notification.cpp
 	${PROJECT_SOURCE_DIR}/src/ServerListItem.cpp
 	${PROJECT_SOURCE_DIR}/src/ServerList.cpp
+	${PROJECT_SOURCE_DIR}/src/ScoreBoard.cpp
 	${PROJECT_SOURCE_DIR}/src/GUI/Button.cpp
+	${PROJECT_SOURCE_DIR}/src/GUI/NinePatch.cpp
 	${PROJECT_SOURCE_DIR}/src/Keyboard/Keyboard.cpp
 	${PROJECT_SOURCE_DIR}/src/Keyboard/tinyxml2.cpp
 	${PROJECT_SOURCE_DIR}/src/States/StateStack.cpp
@@ -38,16 +42,20 @@ set(SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/src/States/TitleState.cpp
 	${PROJECT_SOURCE_DIR}/src/States/ServerSelectState.cpp
 	${PROJECT_SOURCE_DIR}/src/States/PlayState.cpp
-	${PROJECT_SOURCE_DIR}/src/States/DisconnectedState.cpp
+	${PROJECT_SOURCE_DIR}/src/States/PauseState.cpp
+	${PROJECT_SOURCE_DIR}/src/States/TransitionMessageState.cpp
 	${PROJECT_SOURCE_DIR}/src/States/NameSelectState.cpp
+	${PROJECT_SOURCE_DIR}/src/States/LoadingState.cpp
 	${PROJECT_SOURCE_DIR}/src/Network/Client.cpp
 	${PROJECT_SOURCE_DIR}/src/Network/Player.cpp
+	${PROJECT_SOURCE_DIR}/src/Network/NetworkEvents.cpp
 	${TWEEN_ENGINE_SOURCE}
 )
 set(SERVER_SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/src/server.cpp
     ${PROJECT_SOURCE_DIR}/src/Network/Server.cpp
     ${PROJECT_SOURCE_DIR}/src/Network/Player.cpp
+    ${PROJECT_SOURCE_DIR}/src/Network/NetworkEvents.cpp
 )
 
 set(SHADER_AS nihstro)
@@ -59,7 +67,7 @@ link_directories(${CPP3DS}/lib)
 add_executable(${PROJECT_NAME}-server ${SERVER_SOURCE_FILES})
 set_target_properties(${PROJECT_NAME}-server PROPERTIES COMPILE_DEFINITIONS "EMULATION")
 set_target_properties(${PROJECT_NAME}-server PROPERTIES COMPILE_FLAGS "-std=c++11")
-target_link_libraries(${PROJECT_NAME}-server cpp3ds-emu sfml-system sfml-network)
+target_link_libraries(${PROJECT_NAME}-server cpp3ds-emu sfml-system)
 
 ##################################################
 # Don't usually need to change anything below
