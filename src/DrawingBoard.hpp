@@ -20,6 +20,7 @@ public:
 
 	void clear();
 	void endLine();
+	void undo();
 
 private:
 

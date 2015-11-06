@@ -102,8 +102,15 @@ void DrawingBoard::setLineThickness(float thickness)
 
 void DrawingBoard::clear()
 {
+	endLine();
 	m_lines.clear();
-	m_activeLine.clear();
+}
+
+
+void DrawingBoard::undo()
+{
+	if (!m_lines.empty())
+		m_lines.pop_back();
 }
 
 
