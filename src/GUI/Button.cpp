@@ -195,10 +195,10 @@ void Button::ensureUpdate() const
 			m_size.y = contentSize.y - padding.height;
 		}
 
-		m_text.setOrigin(std::floor(textBounds.left + textBounds.width/2),
-						 std::floor(textBounds.top + textBounds.height/2));
-		m_text.setPosition(std::floor(padding.left + contentSize.x/2 + m_textOffset.x),
-						   std::floor(padding.top + contentSize.y/2 + m_textOffset.y));
+		m_text.setOrigin(std::round(textBounds.left + textBounds.width/2),
+		                 std::round(textBounds.top + textBounds.height/2));
+		m_text.setPosition(std::round(padding.left + contentSize.x/2 + m_textOffset.x),
+		                   std::round(padding.top + contentSize.y/2 + m_textOffset.y));
 
 		if (m_active) {
 			NinePatch::setColor(m_backgroundActiveColor);

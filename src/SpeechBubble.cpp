@@ -69,21 +69,21 @@ void SpeechBubble::popStringAnimate()
 		setContentSize(getContentSize()); // Reset content size and make autosize = false
 
 		TweenEngine::Tween::to(*this, SpeechBubble::TEXTCOLOR_ALPHA, 0.15f)
-				.target(0.f)
-				.setCallback(TweenEngine::TweenCallback::COMPLETE, [this, newString](TweenEngine::BaseTween* source){
-					setString(newString);
-				})
-				.start(m_tweenManager);
+			.target(0.f)
+			.setCallback(TweenEngine::TweenCallback::COMPLETE, [this, newString](TweenEngine::BaseTween* source){
+				setString(newString);
+			})
+			.start(m_tweenManager);
 		TweenEngine::Tween::to(*this, SpeechBubble::CONTENT_X, 0.15f)
-				.target(newContentWidth)
-				.ease(TweenEngine::TweenEquations::easeOutCubic)
-				.delay(0.15f)
-				.start(m_tweenManager);
+			.target(newContentWidth)
+			.ease(TweenEngine::TweenEquations::easeOutCubic)
+			.delay(0.15f)
+			.start(m_tweenManager);
 		TweenEngine::Tween::to(*this, SpeechBubble::POSITION_X, 0.15f)
-				.target(newPosition.x)
-				.ease(TweenEngine::TweenEquations::easeOutCubic)
-				.delay(0.15f)
-				.start(m_tweenManager);
+			.target(newPosition.x)
+			.ease(TweenEngine::TweenEquations::easeOutCubic)
+			.delay(0.15f)
+			.start(m_tweenManager);
 	} else {
 		setString(newString);
 		autoSize();

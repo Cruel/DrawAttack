@@ -53,9 +53,6 @@ PlayState::PlayState(StateStack& stack, Context& context)
 	m_keyboard.loadFromFile("kb/keyboard.xml");
 
 	changeMode(Mode::Spectate);
-
-	m_scoreBoard.addText("test line 1");
-	m_scoreBoard.addText("test line 2");
 }
 
 
@@ -263,10 +260,9 @@ void PlayState::changeMode(PlayState::Mode mode)
 		TweenEngine::Tween::to(m_buttonUndo, gui3ds::Button::TEXTCOLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
 		TweenEngine::Tween::to(m_buttonClear, gui3ds::Button::COLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
 		TweenEngine::Tween::to(m_buttonClear, gui3ds::Button::TEXTCOLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
-//		m_mode = mode;
-	} else {
-//		m_board.setPosition(0, 0);
-
+	}
+	else
+	{
 		TweenEngine::Tween::to(m_buttonUndo, gui3ds::Button::COLOR_ALPHA, 2.f).target(230.f).delay(1.f).start(m_tweenManager);
 		TweenEngine::Tween::to(m_buttonUndo, gui3ds::Button::TEXTCOLOR_ALPHA, 2.f).target(255.f).delay(1.f).start(m_tweenManager);
 		TweenEngine::Tween::to(m_buttonClear, gui3ds::Button::COLOR_ALPHA, 2.f).target(230.f).delay(1.f).start(m_tweenManager);
@@ -296,9 +292,8 @@ void PlayState::changeMode(PlayState::Mode mode)
 		}
 	}
 
-	if (mode == Mode::Spectate) {
+	if (mode == Mode::Spectate)
 		m_mode = mode;
-	}
 }
 
 

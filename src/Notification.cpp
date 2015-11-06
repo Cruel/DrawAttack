@@ -35,8 +35,8 @@ void Notification::update(float delta)
 				auto notification = j->get();
 				notification->m_destinationY -= offsetY;
 				TweenEngine::Tween::to(*notification, POSITION_Y, 0.3f)
-						.target(notification->m_destinationY)
-						.start(notification->m_tweenManager);
+					.target(notification->m_destinationY)
+					.start(notification->m_tweenManager);
 			}
 			notifications.erase(i);
 		} else {
@@ -53,7 +53,7 @@ void Notification::spawn(cpp3ds::String message)
 	std::unique_ptr<Notification> notification(new Notification());
 	notification->setString(message);
 	notification->setPosition(std::round(200.f - notification->getSize().x / 2.f),
-							  std::round(m_spawnPositionY + 4.f));
+	                          std::round(m_spawnPositionY + 4.f));
 	m_spawnPositionY += NOTIFICATION_SPACING + notification->getSize().y;
 	notification->animate();
 	notifications.emplace_back(std::move(notification));

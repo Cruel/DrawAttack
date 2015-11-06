@@ -31,16 +31,15 @@ ServerSelectState::ServerSelectState(StateStack& stack, Context& context)
 
 			if (m_menuVisible) {
 				TweenEngine::Tween::to(m_button, gui3ds::Button::POSITION_Y, 0.4f)
-						.target(240)
-						.ease(TweenEngine::TweenEquations::easeInCubic)
-						.setCallback(TweenEngine::TweenCallback::COMPLETE, [this](TweenEngine::BaseTween* source){
-							m_menuVisible = false;
-						})
-						.start(m_tweenManager);
+					.target(240)
+					.ease(TweenEngine::TweenEquations::easeInCubic)
+					.setCallback(TweenEngine::TweenCallback::COMPLETE, [this](TweenEngine::BaseTween* source){
+						m_menuVisible = false;
+					})
+					.start(m_tweenManager);
 			}
 
-			if (getContext().client.connect(serverItem->getIp(),
-											serverItem->getPort()) == cpp3ds::Socket::Done)
+			if (getContext().client.connect(serverItem->getIp(), serverItem->getPort()) == cpp3ds::Socket::Done)
 			{
 				requestStackPop();
 				requestStackPush(States::Play);
@@ -79,12 +78,12 @@ bool ServerSelectState::processEvent(const cpp3ds::Event& event)
 		if (m_serverList.getSelectedItem()) {
 			if (!m_menuVisible) {
 				TweenEngine::Tween::to(m_button, gui3ds::Button::POSITION_Y, 0.4f)
-						.target(235 - m_button.getSize().y)
-						.ease(TweenEngine::TweenEquations::easeOutCubic)
-						.setCallback(TweenEngine::TweenCallback::COMPLETE, [this](TweenEngine::BaseTween* source){
-							m_menuVisible = true;
-						})
-						.start(m_tweenManager);
+					.target(235 - m_button.getSize().y)
+					.ease(TweenEngine::TweenEquations::easeOutCubic)
+					.setCallback(TweenEngine::TweenCallback::COMPLETE, [this](TweenEngine::BaseTween* source){
+						m_menuVisible = true;
+					})
+					.start(m_tweenManager);
 			}
 		}
 	}
