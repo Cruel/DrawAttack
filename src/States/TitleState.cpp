@@ -18,7 +18,7 @@ TitleState::TitleState(StateStack& stack, Context& context)
 
 	m_text.setCharacterSize(16);
 	m_text.setColor(cpp3ds::Color::Black);
-	m_text.setString(_("Press any key to start"));
+	m_text.setString(_("Press any key to start. SELECT to exit."));
 	m_text.setPosition(std::floor(200.f - m_text.getLocalBounds().width / 2), 150.f);
 }
 
@@ -52,6 +52,11 @@ bool TitleState::processEvent(const cpp3ds::Event& event)
 	// If any key is pressed, trigger the next screen
 	if (event.type == cpp3ds::Event::KeyPressed)
 	{
+		if (event.key.code == cpp3ds::Keyboard::Select) {
+			requestStackClear();
+			return true;
+		}
+
 		if (cpp3ds::Service::isEnabled(cpp3ds::NETWORK)) {
 			requestStackPop();
 			requestStackPush(States::ServerSelect);

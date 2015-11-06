@@ -6,9 +6,8 @@ NinePatch::NinePatch()
 : m_color(cpp3ds::Color::White)
 , m_padding(0,0,0,0)
 , m_needsUpdate(true)
-, m_texture(nullptr)
 {
-
+	setTexture(nullptr);
 }
 
 
@@ -54,6 +53,7 @@ const cpp3ds::Vector2f &NinePatch::getContentSize() const
 
 void NinePatch::setPadding(const cpp3ds::FloatRect &padding)
 {
+	m_needsUpdate = true;
 	m_padding = padding;
 }
 
@@ -106,7 +106,15 @@ void NinePatch::updateRegions() const
 	m_regions.clear();
 
 	if (!m_texture)
+	{
+		Region region;
+		region.type = DynamicBoth;
+		region.rect = cpp3ds::FloatRect(0.f, 0.f, 1.f, 1.f);
+		m_dynamicHeight = m_dynamicWidth = 1.f;
+		m_staticHeight = m_staticWidth = 0.f;
+		m_regions.push_back(region);
 		return;
+	}
 
 	cpp3ds::Image image = m_texture->copyToImage();
 

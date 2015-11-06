@@ -1,5 +1,4 @@
 #include "NameSelectState.hpp"
-#include <cpp3ds/Window/Window.hpp>
 
 
 namespace DrawAttack {
@@ -11,18 +10,19 @@ NameSelectState::NameSelectState(StateStack& stack, Context& context)
 	m_rectangle.setFillColor(cpp3ds::Color(0,0,0,150));
 
 	m_keyboard.loadFromFile("kb/keyboard.xml");
-	m_text.setString("Type in your name.");
+	m_text.setString(_("What is your name?"));
+	m_text.setPosition(std::round(160.f - m_text.getLocalBounds().width / 2.f), 2.f);
 }
 
 void NameSelectState::renderTopScreen(cpp3ds::Window& window)
 {
 	window.draw(m_rectangle);
-	window.draw(m_text);
 }
 
 void NameSelectState::renderBottomScreen(cpp3ds::Window& window)
 {
 	window.draw(m_keyboard);
+	window.draw(m_text);
 }
 
 bool NameSelectState::update(float delta)

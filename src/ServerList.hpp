@@ -16,11 +16,12 @@ class ServerList: public cpp3ds::Drawable {
 public:
 	ServerList();
 	void reload();
+	void deselect();
 	void ping(cpp3ds::Time timeout);
 	void addServer(cpp3ds::IpAddress ip, unsigned short port);
 	bool processEvent(const cpp3ds::Event& event);
 	void update(float delta);
-	ServerListItem getSelectedItem();
+	ServerListItem* getSelectedItem();
 
 protected:
 	void draw(cpp3ds::RenderTarget& target, cpp3ds::RenderStates states) const;

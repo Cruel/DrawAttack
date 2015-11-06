@@ -4,6 +4,9 @@
 #include "State.hpp"
 #include "../ServerList.hpp"
 #include "../GUI/Button.hpp"
+#include "../GUI/NinePatch.hpp"
+#include "../SpeechBubble.hpp"
+#include "../ScoreBoard.hpp"
 
 namespace DrawAttack {
 
@@ -18,8 +21,13 @@ public:
 	virtual bool processEvent(const cpp3ds::Event& event);
 
 private:
+	cpp3ds::Font m_iconFont;
+	cpp3ds::Text m_caption;
 	ServerList m_serverList;
-	util3ds::Button m_button;
+	cpp3ds::Texture m_buttonTexture;
+	gui3ds::Button m_button;
+	TweenEngine::TweenManager m_tweenManager;
+	bool m_menuVisible;
 };
 
 } // namespace DrawAttack

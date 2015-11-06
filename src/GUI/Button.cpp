@@ -178,26 +178,27 @@ bool Button::processEvent(const cpp3ds::Event &event)
 
 void Button::ensureUpdate() const
 {
-	if (!getTexture())
-		return;
-
 	if (m_needsUpdate)
 	{
-		if (m_autoSize) {
+		if (m_autoSize)
 			NinePatch::setContentSize(cpp3ds::Vector2f(m_text.getLocalBounds().width, m_text.getLocalBounds().height));
 
-			cpp3ds::FloatRect textBounds = m_text.getLocalBounds();
-			cpp3ds::FloatRect padding = getPadding();
-			cpp3ds::Vector2f contentSize = NinePatch::getContentSize();
+		cpp3ds::FloatRect textBounds = m_text.getLocalBounds();
+		cpp3ds::FloatRect padding = getPadding();
+		cpp3ds::Vector2f contentSize = NinePatch::getContentSize();
 
+		if (m_autoSize && getTexture()) {
 			m_size.x = contentSize.x + getTexture()->getSize().x - padding.width;
 			m_size.y = contentSize.y + getTexture()->getSize().y - padding.height;
-
-			m_text.setOrigin(std::floor(textBounds.left + textBounds.width/2),
-			                 std::floor(textBounds.top + textBounds.height/2));
-			m_text.setPosition(std::floor(padding.left + contentSize.x/2 + m_textOffset.x),
-			                   std::floor(padding.top + contentSize.y/2 + m_textOffset.y));
+		} else {
+			m_size.x = contentSize.x - padding.width;
+			m_size.y = contentSize.y - padding.height;
 		}
+
+		m_text.setOrigin(std::floor(textBounds.left + textBounds.width/2),
+						 std::floor(textBounds.top + textBounds.height/2));
+		m_text.setPosition(std::floor(padding.left + contentSize.x/2 + m_textOffset.x),
+						   std::floor(padding.top + contentSize.y/2 + m_textOffset.y));
 
 		if (m_active) {
 			NinePatch::setColor(m_backgroundActiveColor);

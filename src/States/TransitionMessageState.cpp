@@ -9,6 +9,7 @@ TransitionMessageState::TransitionMessageState(StateStack& stack, Context& conte
 {
 	m_text.setColor(cpp3ds::Color::White);
 	m_text.setCharacterSize(20);
+	m_text.setPosition(20.f, 60.f);
 	m_text.setString(_("%s\nPress any key to continue.", getContext().transition.message.c_str()));
 
 	m_rectangle.setSize(cpp3ds::Vector2f(400, 240));

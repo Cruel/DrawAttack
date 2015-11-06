@@ -10,7 +10,7 @@ namespace DrawAttack {
 
 
 ServerList::ServerList()
-: m_selected(NULL)
+: m_selected(nullptr)
 {
 
 //	Http http(SERVER_LIST_HOST);
@@ -39,7 +39,7 @@ ServerList::ServerList()
 		Tween::to(item, ServerListItem::POSITION_X, 1.f)
 				.target(50)
 				.ease(TweenEquations::easeOutElastic)
-				.delay(1.f + 0.5f * i++)
+				.delay(0.5f + 0.5f * i++)
 				.start(m_tweenManager);
 	}
 }
@@ -59,7 +59,6 @@ void ServerList::ping(cpp3ds::Time timeout)
 
 void ServerList::addServer(cpp3ds::IpAddress ip, unsigned short port)
 {
-	std::cout << ip << " " << port << std::endl;
 	ServerListItem item(ip, port);
 	item.setPosition(0, m_servers.size() * 40.f);
 	m_servers.push_back(item);
@@ -78,16 +77,20 @@ bool ServerList::processEvent(const cpp3ds::Event &event)
 {
 	if (event.type == Event::TouchEnded) {
 		for(auto& item: m_servers) {
-			FloatRect rect = item.m_text.getGlobalBounds();
+			FloatRect rect = item.getRect();
 			rect.left += item.getPosition().x;
 			rect.top += item.getPosition().y;
 			if (rect.contains(event.touch.x, event.touch.y)) {
+				if (m_selected)
+					m_selected->setActive(false);
 				m_selected = &item;
+				item.setActive(true);
+				return false;
 			}
 		}
 	}
 
-	return false;
+	return true;
 }
 
 
@@ -96,8 +99,16 @@ void ServerList::update(float delta) {
 }
 
 
-ServerListItem ServerList::getSelectedItem() {
-	return *m_selected;
+ServerListItem* ServerList::getSelectedItem() {
+	return m_selected;
+}
+
+
+void ServerList::deselect() {
+	m_selected = nullptr;
+	for(auto& item: m_servers) {
+		item.setActive(false);
+	}
 }
 
 
