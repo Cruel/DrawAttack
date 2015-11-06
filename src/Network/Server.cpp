@@ -10,6 +10,8 @@ Server::Server(unsigned short port, std::string wordFilename)
 : m_port(port)
 , m_running(false)
 , m_wordFilename(wordFilename)
+, m_mode(Wait)
+, m_currentDrawer(nullptr)
 {
 	std::ifstream wordFile(wordFilename);
 	std::string line;
@@ -21,12 +23,15 @@ Server::Server(unsigned short port, std::string wordFilename)
 	} else {
 		cpp3ds::err() << "Failed to open word file: " << wordFilename << std::endl;
 	}
+
+	clearDrawData();
 }
 
 
 Server::~Server() {
 	for (auto& socket : m_sockets)
 		delete socket;
+	m_listener.close();
 }
 
 
@@ -34,13 +39,15 @@ void Server::run() {
 	if (m_wordList.size() == 0)
 		return;
 
+	cpp3ds::Clock pingClock;
+
 	if (m_listener.listen(m_port) == cpp3ds::Socket::Done) {
 		m_selector.add(m_listener);
 		std::cout << "Started DrawAttack server on port " << m_port << "..." << std::endl;
 		m_running = true;
 		while (m_running) {
 			// Make the selector wait for data on any socket
-			if (m_selector.wait(cpp3ds::milliseconds(500))) {
+			if (m_selector.wait(cpp3ds::milliseconds(1000))) {
 				if (m_selector.isReady(m_listener)) {
 					cpp3ds::TcpSocket* socket = new cpp3ds::TcpSocket;
 					if (m_listener.accept(*socket) == cpp3ds::Socket::Done)
@@ -48,8 +55,10 @@ void Server::run() {
 						std::cout << "client connected" << std::endl;
 						// Add the new client to the clients list
 						m_sockets.push_back(socket);
+						m_pingResponses[socket] = true;
 						m_selector.add(*socket);
 						sendPlayerData(socket);
+						socket->send(m_drawDataPacket);
 					} else {
 						delete socket;
 					}
@@ -60,6 +69,41 @@ void Server::run() {
 						if (m_selector.isReady(*socket)) {
 							processSocket(socket);
 						}
+					}
+				}
+			}
+
+			// Ping clients and check for previous response
+			if (pingClock.getElapsedTime() >= cpp3ds::seconds(10)) {
+				cpp3ds::Packet packet;
+				packet << NetworkEvent::Ping;
+				for (auto& socket : m_sockets) {
+					if (m_pingResponses[socket]) {
+						socket->send(packet);
+						m_pingResponses[socket] = false;
+					} else {
+						// Timed out socket
+						std::cout << "A socket timed out." << std::endl;
+						removeSocket(socket);
+					}
+				}
+				pingClock.restart();
+			}
+
+			if (m_mode == Play) {
+				if (m_roundClock.getElapsedTime() >= cpp3ds::seconds(ROUND_DURATION)) {
+					// Round time ended, nobody won
+					cpp3ds::Packet packet;
+					packet << NetworkEvent::RoundWord << m_currentWord << NetworkEvent::RoundFail;
+					sendToAllSockets(packet);
+					m_roundClock.restart();
+					m_mode = Wait;
+				}
+			} else if (m_mode == Wait) {
+				if (m_players.size() >= MIN_PLAYERS) {
+					if (m_roundClock.getElapsedTime() >= cpp3ds::seconds(ROUND_INTERMISSION)) {
+						Player drawer = getNextDrawer();
+						startRound(drawer, getNextWord(), ROUND_DURATION);
 					}
 				}
 			}
@@ -76,20 +120,29 @@ void Server::exit()
 }
 
 
-void Server::sendToAll(cpp3ds::Packet &packet)
+void Server::sendToAllSockets(cpp3ds::Packet &packet)
+{
+	for (auto& socket : m_sockets) {
+		socket->send(packet);
+	}
+}
+
+
+void Server::sendToAllPlayers(cpp3ds::Packet &packet)
 {
 	for (auto& player : m_players) {
-		player.socket->send(packet);
+		player.first->send(packet);
 	}
 }
 
 
 void Server::sendPlayerData(cpp3ds::TcpSocket* socket) {
 	cpp3ds::Packet packet;
-	packet << static_cast<cpp3ds::Uint8>(NetworkEvent::EventType::PlayerData);
+	packet << NetworkEvent::PlayerData;
 	packet << static_cast<cpp3ds::Uint8>(m_players.size());
-	for (auto& p : m_players) {
-		packet << p.getName();
+	for (const auto& player : m_players) {
+		packet << player.second.getName();
+		packet << player.second.getScore();
 	}
 	socket->send(packet);
 }
@@ -101,62 +154,194 @@ void Server::processSocket(cpp3ds::TcpSocket* socket)
 	cpp3ds::Socket::Status status = socket->receive(packet);
 	if (status == cpp3ds::Socket::Done)
 	{
-		cpp3ds::Packet packetSend = packet;
-		cpp3ds::Uint8 typeInt;
-		packet >> typeInt;
-		NetworkEvent::EventType type = static_cast<NetworkEvent::EventType>(typeInt);
+		cpp3ds::Packet packetSend;
+		NetworkEvent event;
 
-		switch(type) {
-			case NetworkEvent::PlayerConnected: {
-				std::string name;
-				packet >> name;
-				std::cout << name << " connected." << std::endl;
-				Player player(socket, name);
-				m_players.push_back(player);
-				sendToAll(packetSend);
-				sendDrawerDesignation(player);
-				break;
+		while (NetworkEvent::packetToEvent(packet, event))
+		{
+			if (!validateEvent(socket, event))
+				continue;
+
+			switch(event.type) {
+				case NetworkEvent::PlayerConnected: {
+					std::cout << event.player.name << " connected." << std::endl;
+					Player player(event.player.name);
+					m_players.emplace(socket, player);
+					NetworkEvent::eventToPacket(event, packetSend);
+					sendToAllSockets(packetSend);
+					packetSend.clear();
+					if (m_players.size() < MIN_PLAYERS) {
+						sendWaitForPlayers(socket, MIN_PLAYERS);
+					}
+					break;
+				}
+				case NetworkEvent::Text: {
+					NetworkEvent::eventToPacket(event, packetSend);
+					std::string word = event.text.value.toAnsiString();
+					std::transform(word.begin(), word.end(), word.begin(), ::tolower);
+					if (word.compare(m_currentWord) == 0) {
+						std::cout << event.text.name << " won!" << std::endl;
+						packetSend << NetworkEvent::RoundWord << word << NetworkEvent::RoundWin << event.text.name;
+						m_roundClock.restart();
+						m_mode = Wait;
+					}
+					break;
+				}
+				case NetworkEvent::DrawMove:
+				case NetworkEvent::DrawEndline:
+					m_drawDataPacket << event.type << event.draw.x << event.draw.y;
+					NetworkEvent::eventToPacket(event, packetSend);
+					break;
+				case NetworkEvent::DrawClear:
+					clearDrawData();
+					NetworkEvent::eventToPacket(event, packetSend);
+					break;
+				case NetworkEvent::DrawUndo: {
+					m_drawDataPacket << event.type;
+					NetworkEvent::eventToPacket(event, packetSend);
+					break;
+				}
+				case NetworkEvent::Ping:
+					m_pingResponses[socket] = true;
+					break;
+				default:
+					break;
 			}
-			case NetworkEvent::Text: {
-				cpp3ds::String text;
-				packet >> text;
-				std::cout << "message: " << text.toAnsiString() << std::endl;
-				sendToAll(packetSend);
-				break;
-			}
-			case NetworkEvent::DrawMove:
-			case NetworkEvent::DrawEndline: {
-				sendToAll(packetSend);
-				break;
-			}
-			default:
-				break;
 		}
-	} else if (status == cpp3ds::Socket::Disconnected) {
-		std::cout << "Player disconnected!" << std::endl;
-		m_selector.remove(*socket);
-		for (std::vector<Player>::iterator i = m_players.begin(); i != m_players.end(); i++)
-			if (i->socket == socket) {
-				m_players.erase(i);
-				break;
-			}
-		for (std::vector<cpp3ds::TcpSocket*>::iterator i = m_sockets.begin(); i != m_sockets.end(); i++)
-			if (*i == socket) {
-				m_sockets.erase(i);
-				break;
-			}
-		delete socket;
+		if (!packetSend.endOfPacket())
+			sendToAllSockets(packetSend);
+
+	} else if (status == cpp3ds::Socket::Disconnected || status == cpp3ds::Socket::Error) {
+		removeSocket(socket);
 	}
 }
 
 
-void Server::sendDrawerDesignation(Player &drawer)
+bool Server::validateEvent(cpp3ds::TcpSocket* socket, const NetworkEvent &event)
 {
-	cpp3ds::Packet packet;
-	packet << static_cast<cpp3ds::Uint8>(NetworkEvent::DrawerDesignation);
-	packet << drawer.getName();
-	sendToAll(packet);
+	switch (event.type) {
+		case NetworkEvent::PlayerConnected:
+			break;
+		case NetworkEvent::DrawMove:
+		case NetworkEvent::DrawEndline:
+		case NetworkEvent::DrawUndo:
+		case NetworkEvent::DrawClear:
+			if (m_currentDrawer != socket || m_mode == Wait)
+				return false;
+			break;
+		default:
+			break;
+	}
+
+	// Assume it's good if none of the above checks failed
+	return true;
 }
 
+
+void Server::startRound(Player &drawer, std::string word, float duration)
+{
+	std::cout << "Starting round. Drawer: " << drawer.getName() << " Word: " << word << std::endl;
+	m_roundDuration = duration;
+	m_currentWord = word;
+	m_mode = Play;
+
+	cpp3ds::Packet packet;
+	packet << NetworkEvent::RoundStart << drawer.getName() << duration;
+	sendToAllSockets(packet);
+
+	// Send word to the drawer
+	packet.clear();
+	packet << NetworkEvent::RoundWord << word;
+	m_currentDrawer->send(packet);
+
+	m_roundClock.restart();
+	clearDrawData();
+}
+
+
+void Server::sendDrawData(cpp3ds::TcpSocket *socket)
+{
+
+}
+
+
+void Server::clearDrawData()
+{
+	m_drawDataPacket.clear();
+	m_drawDataPacket << NetworkEvent::DrawData;
+}
+
+
+void Server::removeSocket(cpp3ds::TcpSocket *socket)
+{
+	cpp3ds::Packet packet;
+	std::string name;
+	m_selector.remove(*socket);
+	for (std::map<cpp3ds::TcpSocket*, Player>::iterator i = m_players.begin(); i != m_players.end(); i++)
+		if (i->first == socket) {
+			name = i->second.getName();
+			m_players.erase(i);
+			break;
+		}
+	for (std::vector<cpp3ds::TcpSocket*>::iterator i = m_sockets.begin(); i != m_sockets.end(); i++)
+		if (*i == socket) {
+			m_sockets.erase(i);
+			break;
+		}
+	delete socket;
+
+	std::cout << "Player disconnected: " << name << std::endl;
+	packet << NetworkEvent::PlayerDisconnected << name;
+	if (m_players.size() < MIN_PLAYERS) {
+		m_mode = Wait;
+		packet << NetworkEvent::WaitForPlayers << MIN_PLAYERS;
+	}
+	sendToAllSockets(packet);
+}
+
+
+void Server::sendWaitForPlayers(cpp3ds::TcpSocket *socket, float playersNeeded)
+{
+	cpp3ds::Packet packet;
+	packet << NetworkEvent::WaitForPlayers << playersNeeded;
+	socket->send(packet);
+}
+
+
+const Player& Server::getNextDrawer()
+{
+	if (m_currentDrawer) {
+		bool found = false;
+		for (auto& player : m_players) {
+			if (found) {
+				m_currentDrawer = player.first;
+				return player.second;
+			}
+			if (player.first == m_currentDrawer)
+				found = true;
+		}
+	}
+	m_currentDrawer = m_players.begin()->first;
+	return m_players.begin()->second;
+}
+
+
+std::string Server::getNextWord()
+{
+	if (m_wordList.empty()) {
+		if (m_wordListUsed.empty())
+			return "Error: No word list";
+		m_wordList = m_wordListUsed;
+		m_wordListUsed.clear();
+	}
+	auto iterator = m_wordList.begin();
+	std::advance(iterator, std::rand() % m_wordList.size());
+	std::string nextWord = *iterator;
+
+	m_wordListUsed.push_back(nextWord);
+	m_wordList.erase(iterator);
+
+	return nextWord;
+}
 
 } // namespace DrawAttack

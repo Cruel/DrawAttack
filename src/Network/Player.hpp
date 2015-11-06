@@ -7,15 +7,19 @@ namespace DrawAttack {
 
 class Player {
 public:
-	Player(cpp3ds::TcpSocket* socket, std::string name);
+	Player(std::string name);
 	~Player();
 
-	std::string getName();
-	cpp3ds::TcpSocket* socket;
+	const std::string& getName() const;
+
+	void incrementScore();
+	void setScore(const unsigned int& score);
+	const unsigned int& getScore() const;
 private:
 	std::string m_name;
+	unsigned int m_score;
 };
 
 } // namespace DrawAttack
 
-#endif //DRAWATTACK_PLAYER_HPP
+#endif // DRAWATTACK_PLAYER_HPP

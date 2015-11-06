@@ -40,6 +40,7 @@ public:
 		PlayerData,
 		PlayerConnected,
 		PlayerDisconnected,
+		PlayerNameCollision,
 		Text,
 		DrawData,
 		DrawMove,

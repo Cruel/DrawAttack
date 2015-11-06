@@ -11,14 +11,25 @@ class Client {
 public:
 	Client();
 	~Client();
-	bool pollEvent(NetworkEvent& event);
+	bool pollPacket(cpp3ds::Packet& packet);
 	cpp3ds::Socket::Status connect(cpp3ds::IpAddress ip, unsigned short port);
-	void sendText(cpp3ds::String text);
+
+	void flushPacket();
+	void setRateLimit(const cpp3ds::Time& time);
+	const cpp3ds::Time& getRateLimit() const;
+
+	void sendText(std::string name, cpp3ds::String text);
 	void sendPlayerConnected(cpp3ds::String name);
 	void sendDrawMove(int x, int y);
 	void sendDrawEndline(int x, int y);
+	void sendUndo();
+	void sendClear();
+	void sendPing();
 private:
 	cpp3ds::TcpSocket m_socket;
+	cpp3ds::Packet m_packet;
+	cpp3ds::Clock m_rateClock;
+	cpp3ds::Time m_rateLimit;
 };
 
 
