@@ -25,6 +25,7 @@ public:
 	};
 
 	PlayState(StateStack& stack, Context& context);
+	~PlayState();
 	virtual void renderTopScreen(cpp3ds::Window& window);
 	virtual void renderBottomScreen(cpp3ds::Window& window);
 	virtual bool update(float delta);

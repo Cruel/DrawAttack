@@ -30,6 +30,12 @@ cpp3ds::Socket::Status Client::connect(cpp3ds::IpAddress ip, unsigned short port
 }
 
 
+void Client::disconnect()
+{
+	m_socket.disconnect();
+}
+
+
 bool Client::pollPacket(cpp3ds::Packet& packet)
 {
 	cpp3ds::Socket::Status status = m_socket.receive(packet);
@@ -57,49 +63,48 @@ void Client::flushPacket()
 void Client::sendText(std::string name, cpp3ds::String text)
 {
 	m_packet << NetworkEvent::Text << name << text;
-	flushPacket();
 }
 
 
 void Client::sendDrawMove(int x, int y)
 {
 	m_packet << NetworkEvent::DrawMove << x << y;
-	flushPacket();
 }
 
 
 void Client::sendDrawEndline(int x, int y)
 {
 	m_packet << NetworkEvent::DrawEndline << x << y;
-	flushPacket();
 }
 
 
 void Client::sendPlayerConnected(cpp3ds::String name)
 {
 	m_packet << NetworkEvent::PlayerConnected << name.toAnsiString();
-	flushPacket();
 }
 
 
 void Client::sendUndo()
 {
 	m_packet << NetworkEvent::DrawUndo;
-	flushPacket();
 }
 
 
 void Client::sendClear()
 {
 	m_packet << NetworkEvent::DrawClear;
-	flushPacket();
 }
 
 
 void Client::sendPing()
 {
 	m_packet << NetworkEvent::Ping;
-	flushPacket();
+}
+
+
+void Client::sendRoundPass()
+{
+	m_packet << NetworkEvent::RoundPass;
 }
 
 
@@ -113,5 +118,6 @@ const cpp3ds::Time& Client::getRateLimit() const
 {
 	return m_rateLimit;
 }
+
 
 } // namespace DrawAttack

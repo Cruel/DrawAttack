@@ -13,6 +13,7 @@ public:
 	~Client();
 	bool pollPacket(cpp3ds::Packet& packet);
 	cpp3ds::Socket::Status connect(cpp3ds::IpAddress ip, unsigned short port);
+	void disconnect();
 
 	void flushPacket();
 	void setRateLimit(const cpp3ds::Time& time);
@@ -25,6 +26,7 @@ public:
 	void sendUndo();
 	void sendClear();
 	void sendPing();
+	void sendRoundPass();
 private:
 	cpp3ds::TcpSocket m_socket;
 	cpp3ds::Packet m_packet;

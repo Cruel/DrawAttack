@@ -1,6 +1,5 @@
 #include "PlayState.hpp"
 #include "../Notification.hpp"
-#include <cpp3ds/Window/Window.hpp>
 #include <TweenEngine/Tween.h>
 
 
@@ -53,6 +52,12 @@ PlayState::PlayState(StateStack& stack, Context& context)
 	m_keyboard.loadFromFile("kb/keyboard.xml");
 
 	changeMode(Mode::Spectate);
+}
+
+
+PlayState::~PlayState()
+{
+	getContext().client.disconnect();
 }
 
 
@@ -387,7 +392,7 @@ bool PlayState::processNetworkEvent(const NetworkEvent &event)
 			}
 			break;
 		case NetworkEvent::RoundPass:
-			Notification::spawn(_("%s passed.", m_roundDrawer));
+			Notification::spawn(_("%s passed.", m_roundDrawer.c_str()));
 			Notification::spawn(_("Word was: %s", m_roundWord.c_str()));
 			if (m_mode != Mode::Spectate)
 				changeMode(Mode::Wait);
@@ -466,5 +471,6 @@ void PlayState::setTimerPosition(bool top)
 		m_countdownText.setPosition(cpp3ds::Vector2f(290, 5));
 	}
 }
+
 
 } // namespace DrawAttack
