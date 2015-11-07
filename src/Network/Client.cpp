@@ -23,6 +23,7 @@ cpp3ds::Socket::Status Client::connect(cpp3ds::IpAddress ip, unsigned short port
 	cpp3ds::Socket::Status status = m_socket.connect(ip, port, cpp3ds::seconds(1.f));
 	if (status == cpp3ds::Socket::Done) {
 		m_socket.setBlocking(false);
+		m_packet << NetworkEvent::Version << std::string(CLIENT_VERSION);
 	} else {
 		m_socket.disconnect();
 	}

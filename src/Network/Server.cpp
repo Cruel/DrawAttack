@@ -99,6 +99,14 @@ void Server::run() {
 					m_roundClock.restart();
 					m_mode = Wait;
 				}
+				if (m_roundTimeoutClock.getElapsedTime() >= cpp3ds::seconds(ROUND_TIMEOUT)) {
+					// Drawer hasn't been active, so end round
+					cpp3ds::Packet packet;
+					packet << NetworkEvent::RoundWord << m_currentWord << NetworkEvent::RoundTimeout;
+					sendToAllSockets(packet);
+					m_roundClock.restart();
+					m_mode = Wait;
+				}
 			} else if (m_mode == Wait) {
 				if (m_players.size() >= MIN_PLAYERS) {
 					if (m_roundClock.getElapsedTime() >= cpp3ds::seconds(ROUND_INTERMISSION)) {
@@ -163,8 +171,30 @@ void Server::processSocket(cpp3ds::TcpSocket* socket)
 				continue;
 
 			switch(event.type) {
+				case NetworkEvent::Version:
+					if (event.server.message.compare(SERVER_VERSION) != 0) {
+						packet.clear();
+						std::string message = _("Incompatible client version %s (needs %s)", event.server.message.c_str(), SERVER_VERSION);
+						packet << NetworkEvent::ServerShutdown << message;
+						socket->send(packet);
+						removeSocket(socket);
+					}
+					break;
 				case NetworkEvent::PlayerConnected: {
 					std::cout << event.player.name << " connected." << std::endl;
+					bool collision = false;
+					for (auto& player : m_players) {
+						if (event.player.name.compare(player.second.getName()) == 0) {
+							collision = true;
+							break;
+						}
+					}
+					if (collision) {
+						cpp3ds::Packet packet;
+						packet << NetworkEvent::PlayerNameCollision << event.player.name;
+						socket->send(packet);
+						break;
+					}
 					Player player(event.player.name);
 					m_players.emplace(socket, player);
 					NetworkEvent::eventToPacket(event, packetSend);
@@ -177,11 +207,19 @@ void Server::processSocket(cpp3ds::TcpSocket* socket)
 				}
 				case NetworkEvent::Text: {
 					NetworkEvent::eventToPacket(event, packetSend);
+					if (m_mode != Play)
+						break;
 					std::string word = event.text.value.toAnsiString();
 					std::transform(word.begin(), word.end(), word.begin(), ::tolower);
 					if (word.compare(m_currentWord) == 0) {
 						std::cout << event.text.name << " won!" << std::endl;
 						packetSend << NetworkEvent::RoundWord << word << NetworkEvent::RoundWin << event.text.name;
+						for (auto& player : m_players) {
+							if (player.second.getName().compare(event.text.name) == 0)
+								player.second.incrementScore();
+							if (player.first == m_currentDrawer)
+								player.second.incrementScore();
+						}
 						m_roundClock.restart();
 						m_mode = Wait;
 					}
@@ -191,16 +229,25 @@ void Server::processSocket(cpp3ds::TcpSocket* socket)
 				case NetworkEvent::DrawEndline:
 					m_drawDataPacket << event.type << event.draw.x << event.draw.y;
 					NetworkEvent::eventToPacket(event, packetSend);
+					m_roundTimeoutClock.restart();
 					break;
 				case NetworkEvent::DrawClear:
 					clearDrawData();
 					NetworkEvent::eventToPacket(event, packetSend);
+					m_roundTimeoutClock.restart();
 					break;
 				case NetworkEvent::DrawUndo: {
 					m_drawDataPacket << event.type;
 					NetworkEvent::eventToPacket(event, packetSend);
+					m_roundTimeoutClock.restart();
 					break;
 				}
+				case NetworkEvent::RoundPass:
+					packetSend << NetworkEvent::RoundWord << m_currentWord;
+					NetworkEvent::eventToPacket(event, packetSend);
+					m_roundClock.restart();
+					m_mode = Wait;
+					break;
 				case NetworkEvent::Ping:
 					m_pingResponses[socket] = true;
 					break;
@@ -222,6 +269,7 @@ bool Server::validateEvent(cpp3ds::TcpSocket* socket, const NetworkEvent &event)
 	switch (event.type) {
 		case NetworkEvent::PlayerConnected:
 			break;
+		case NetworkEvent::RoundPass:
 		case NetworkEvent::DrawMove:
 		case NetworkEvent::DrawEndline:
 		case NetworkEvent::DrawUndo:
@@ -255,6 +303,7 @@ void Server::startRound(Player &drawer, std::string word, float duration)
 	m_currentDrawer->send(packet);
 
 	m_roundClock.restart();
+	m_roundTimeoutClock.restart();
 	clearDrawData();
 }
 
@@ -290,13 +339,16 @@ void Server::removeSocket(cpp3ds::TcpSocket *socket)
 		}
 	delete socket;
 
-	std::cout << "Player disconnected: " << name << std::endl;
-	packet << NetworkEvent::PlayerDisconnected << name;
-	if (m_players.size() < MIN_PLAYERS) {
-		m_mode = Wait;
-		packet << NetworkEvent::WaitForPlayers << MIN_PLAYERS;
+	// If name is empty, it was just an idle (spectating) socket
+	if (!name.empty()) {
+		std::cout << "Player disconnected: " << name << std::endl;
+		packet << NetworkEvent::PlayerDisconnected << name;
+		if (m_players.size() < MIN_PLAYERS) {
+			m_mode = Wait;
+			packet << NetworkEvent::WaitForPlayers << MIN_PLAYERS;
+		}
+		sendToAllSockets(packet);
 	}
-	sendToAllSockets(packet);
 }
 
 

@@ -7,9 +7,11 @@
 #include <list>
 
 #define MIN_PLAYERS 3.f
+#define SERVER_VERSION "1.0b"
 #define MAX_PLAYERS 16.f
-#define ROUND_DURATION 90.f
+#define ROUND_DURATION 60.f
 #define ROUND_INTERMISSION 8.f
+#define ROUND_TIMEOUT 15.f
 
 namespace DrawAttack {
 
@@ -54,6 +56,7 @@ private:
 	std::string m_currentWord;
 	float m_roundDuration;
 	cpp3ds::Clock m_roundClock;
+	cpp3ds::Clock m_roundTimeoutClock;
 
 	cpp3ds::TcpListener m_listener;
 	std::vector<cpp3ds::TcpSocket*> m_sockets;

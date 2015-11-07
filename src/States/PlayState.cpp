@@ -15,10 +15,10 @@ PlayState::PlayState(StateStack& stack, Context& context)
 	m_iconFont.loadFromFile("fonts/fontawesome.ttf");
 
 	m_buttonClear.setTexture(&m_buttonTexture);
-	m_buttonClear.getText().setCharacterSize(24);
+	m_buttonClear.getText().setCharacterSize(20);
 	m_buttonClear.setTextOffset(cpp3ds::Vector2f(-1, -1));
-	m_buttonClear.setColor(cpp3ds::Color(200,200,255));
-	m_buttonClear.setActiveColor(cpp3ds::Color(150,150,255));
+	m_buttonClear.setColor(cpp3ds::Color::White);
+	m_buttonClear.setActiveColor(cpp3ds::Color(200,200,255));
 	m_buttonClear.getText().setFont(m_iconFont);
 	m_buttonClear.setString(L"\uf1f8");
 	m_buttonClear.setPosition(0, 240 - m_buttonClear.getSize().y);
@@ -28,15 +28,27 @@ PlayState::PlayState(StateStack& stack, Context& context)
 	});
 
 	m_buttonUndo.setTexture(&m_buttonTexture);
-	m_buttonUndo.getText().setCharacterSize(24);
-	m_buttonUndo.setColor(cpp3ds::Color(200,200,255));
-	m_buttonUndo.setActiveColor(cpp3ds::Color(150,150,255));
+	m_buttonUndo.getText().setCharacterSize(20);
+	m_buttonUndo.setColor(cpp3ds::Color::White);
+	m_buttonUndo.setActiveColor(cpp3ds::Color(200,200,255));
 	m_buttonUndo.getText().setFont(m_iconFont);
 	m_buttonUndo.setString(L"\uf0e2");
 	m_buttonUndo.setPosition(m_buttonClear.getSize().x, 240 - m_buttonUndo.getSize().y);
 	m_buttonUndo.onClick([this]{
 		getContext().client.sendUndo();
 		m_board.undo();
+	});
+
+	m_buttonPass.setTexture(&m_buttonTexture);
+	m_buttonPass.getText().setCharacterSize(20);
+	m_buttonPass.setColor(cpp3ds::Color::White);
+	m_buttonPass.setActiveColor(cpp3ds::Color(200,200,255));
+	m_buttonPass.setTextOffset(cpp3ds::Vector2f(0, -1));
+	m_buttonPass.getText().setFont(m_iconFont);
+	m_buttonPass.setString(L"\uf064");
+	m_buttonPass.setPosition(320.f - m_buttonPass.getSize().x, 240.f - m_buttonPass.getSize().y);
+	m_buttonPass.onClick([this]{
+		getContext().client.sendRoundPass();
 	});
 
 	m_board.create(320, 240);
@@ -101,11 +113,13 @@ void PlayState::renderBottomScreen(cpp3ds::Window& window)
 			window.draw(m_board);
 		}
 		window.draw(m_buttonUndo);
+		window.draw(m_buttonPass);
 		window.draw(m_buttonClear);
 	} else {
 		if (m_boardCopy) {
 			window.draw(m_board);
 			window.draw(m_buttonUndo);
+			window.draw(m_buttonPass);
 			window.draw(m_buttonClear);
 		}
 	}
@@ -181,6 +195,8 @@ bool PlayState::processEvent(const cpp3ds::Event& event)
 		if (!m_buttonClear.processEvent(event))
 			return false;
 		if (!m_buttonUndo.processEvent(event))
+			return false;
+		if (!m_buttonPass.processEvent(event))
 			return false;
 
 		if (event.type == cpp3ds::Event::TouchMoved) {
@@ -265,13 +281,17 @@ void PlayState::changeMode(PlayState::Mode mode)
 		TweenEngine::Tween::to(m_buttonUndo, gui3ds::Button::TEXTCOLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
 		TweenEngine::Tween::to(m_buttonClear, gui3ds::Button::COLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
 		TweenEngine::Tween::to(m_buttonClear, gui3ds::Button::TEXTCOLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
+		TweenEngine::Tween::to(m_buttonPass, gui3ds::Button::COLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
+		TweenEngine::Tween::to(m_buttonPass, gui3ds::Button::TEXTCOLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
 	}
 	else
 	{
-		TweenEngine::Tween::to(m_buttonUndo, gui3ds::Button::COLOR_ALPHA, 2.f).target(230.f).delay(1.f).start(m_tweenManager);
+		TweenEngine::Tween::to(m_buttonUndo, gui3ds::Button::COLOR_ALPHA, 2.f).target(200.f).delay(1.f).start(m_tweenManager);
 		TweenEngine::Tween::to(m_buttonUndo, gui3ds::Button::TEXTCOLOR_ALPHA, 2.f).target(255.f).delay(1.f).start(m_tweenManager);
-		TweenEngine::Tween::to(m_buttonClear, gui3ds::Button::COLOR_ALPHA, 2.f).target(230.f).delay(1.f).start(m_tweenManager);
+		TweenEngine::Tween::to(m_buttonClear, gui3ds::Button::COLOR_ALPHA, 2.f).target(200.f).delay(1.f).start(m_tweenManager);
 		TweenEngine::Tween::to(m_buttonClear, gui3ds::Button::TEXTCOLOR_ALPHA, 2.f).target(255.f).delay(1.f).start(m_tweenManager);
+		TweenEngine::Tween::to(m_buttonPass, gui3ds::Button::COLOR_ALPHA, 2.f).target(200.f).delay(1.f).start(m_tweenManager);
+		TweenEngine::Tween::to(m_buttonPass, gui3ds::Button::TEXTCOLOR_ALPHA, 2.f).target(255.f).delay(1.f).start(m_tweenManager);
 
 		if (mode == Mode::Draw) {
 			setTimerPosition(true);
@@ -314,11 +334,13 @@ bool PlayState::processNetworkEvent(const NetworkEvent &event)
 			}
 			Notification::spawn(_("%s joined the game.", event.player.name.c_str()));
 			PlayerData data(event.player.name);
-			data.bubble.setPosition(0, 40 * (m_players.size() + 1));
 			m_players.emplace(event.player.name, data);
 			updatePlayerInfo();
 			break;
 		}
+		case NetworkEvent::PlayerNameCollision:
+			Notification::spawn(_("Name \"%s\" already taken.", event.player.name.c_str()));
+			break;
 		case NetworkEvent::PlayerDisconnected: {
 			Notification::spawn(_("%s left the game.", event.player.name.c_str()));
 			m_players.erase(event.player.name);
@@ -326,7 +348,7 @@ bool PlayState::processNetworkEvent(const NetworkEvent &event)
 			break;
 		}
 		case NetworkEvent::ServerShutdown:
-			getContext().transition.message = "Disconnected from server.";
+			getContext().transition.message = _("Disconnected from server.\nReason: %s", event.server.message.c_str());
 			getContext().transition.nextStateID = States::Title;
 			requestStackClear();
 			requestStackPush(States::TransitionMessage);
@@ -375,10 +397,12 @@ bool PlayState::processNetworkEvent(const NetworkEvent &event)
 		case NetworkEvent::RoundWin: {
 			Notification::spawn(_("%s guessed the word: %s", event.round.player.c_str(), m_roundWord.c_str()));
 			auto player = m_players.find(event.round.player);
-			if (player != m_players.end()) {
+			if (player != m_players.end())
 				player->second.player.incrementScore();
-				updatePlayerInfo();
-			}
+			player = m_players.find(m_roundDrawer);
+			if (player != m_players.end())
+				player->second.player.incrementScore();
+			updatePlayerInfo();
 			if (m_mode != Mode::Spectate) {
 				changeMode(Mode::Wait);
 			}
@@ -393,6 +417,12 @@ bool PlayState::processNetworkEvent(const NetworkEvent &event)
 			break;
 		case NetworkEvent::RoundPass:
 			Notification::spawn(_("%s passed.", m_roundDrawer.c_str()));
+			Notification::spawn(_("Word was: %s", m_roundWord.c_str()));
+			if (m_mode != Mode::Spectate)
+				changeMode(Mode::Wait);
+			break;
+		case NetworkEvent::RoundTimeout:
+			Notification::spawn(_("Round ended due to inactivity."));
 			Notification::spawn(_("Word was: %s", m_roundWord.c_str()));
 			if (m_mode != Mode::Spectate)
 				changeMode(Mode::Wait);

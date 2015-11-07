@@ -4,8 +4,9 @@
 #include <cpp3ds/Network.hpp>
 #include "NetworkEvents.hpp"
 
-namespace DrawAttack {
+#define CLIENT_VERSION "1.0b"
 
+namespace DrawAttack {
 
 class Client {
 public:
@@ -34,7 +35,6 @@ private:
 	cpp3ds::Time m_rateLimit;
 };
 
+} // namespace DrawAttack
 
-}
-
-#endif //DRAWATTACK_CLIENT_HPP
+#endif // DRAWATTACK_CLIENT_HPP

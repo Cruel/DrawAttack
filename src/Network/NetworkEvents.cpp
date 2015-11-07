@@ -21,6 +21,7 @@ bool NetworkEvent::packetToEvent(cpp3ds::Packet& packet, NetworkEvent& event)
 		return false;
 	packet >> event.type;
 	switch (event.type) {
+		case NetworkEvent::Version:
 		case NetworkEvent::ServerShutdown:
 			packet >> event.server.message;
 			break;
@@ -36,6 +37,7 @@ bool NetworkEvent::packetToEvent(cpp3ds::Packet& packet, NetworkEvent& event)
 		}
 		case NetworkEvent::PlayerConnected:
 		case NetworkEvent::PlayerDisconnected:
+		case NetworkEvent::PlayerNameCollision:
 			packet >> event.player.name;
 			break;
 		case NetworkEvent::Text:
@@ -60,6 +62,7 @@ bool NetworkEvent::packetToEvent(cpp3ds::Packet& packet, NetworkEvent& event)
 		case NetworkEvent::DrawClear:
 		case NetworkEvent::RoundFail:
 		case NetworkEvent::RoundPass:
+		case NetworkEvent::RoundTimeout:
 		case NetworkEvent::Ping:
 			break;
 		default:
@@ -73,6 +76,7 @@ bool NetworkEvent::eventToPacket(NetworkEvent &event, cpp3ds::Packet &packet)
 {
 	packet << event.type;
 	switch (event.type) {
+		case NetworkEvent::Version:
 		case NetworkEvent::ServerShutdown:
 			packet << event.server.message;
 			break;
@@ -80,6 +84,7 @@ bool NetworkEvent::eventToPacket(NetworkEvent &event, cpp3ds::Packet &packet)
 			break;
 		case NetworkEvent::PlayerConnected:
 		case NetworkEvent::PlayerDisconnected:
+		case NetworkEvent::PlayerNameCollision:
 			packet << event.player.name;
 			break;
 		case NetworkEvent::Text:
@@ -104,6 +109,7 @@ bool NetworkEvent::eventToPacket(NetworkEvent &event, cpp3ds::Packet &packet)
 		case NetworkEvent::DrawClear:
 		case NetworkEvent::RoundFail:
 		case NetworkEvent::RoundPass:
+		case NetworkEvent::RoundTimeout:
 		case NetworkEvent::Ping:
 			break;
 		default:

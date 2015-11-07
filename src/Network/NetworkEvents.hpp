@@ -36,6 +36,7 @@ public:
 	};
 
 	enum EventType {
+		Version, // Must be first for backwards compatibility
 		ServerShutdown,
 		PlayerData,
 		PlayerConnected,
@@ -53,6 +54,7 @@ public:
 		RoundWin,
 		RoundFail,
 		RoundPass,
+		RoundTimeout,
 		Voice,
 		Ping,
 
