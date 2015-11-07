@@ -29,8 +29,10 @@ Server::Server(unsigned short port, std::string wordFilename)
 
 
 Server::~Server() {
-	for (auto& socket : m_sockets)
+	for (auto& socket : m_sockets) {
+		socket->disconnect();
 		delete socket;
+	}
 	m_listener.close();
 }
 
@@ -54,11 +56,11 @@ void Server::run() {
 					{
 						std::cout << "client connected" << std::endl;
 						// Add the new client to the clients list
-						m_sockets.push_back(socket);
-						m_pingResponses[socket] = true;
-						m_selector.add(*socket);
 						sendPlayerData(socket);
 						socket->send(m_drawDataPacket);
+						m_pingResponses[socket] = true;
+						m_sockets.emplace_back(socket);
+						m_selector.add(*socket);
 					} else {
 						delete socket;
 					}
@@ -74,7 +76,7 @@ void Server::run() {
 			}
 
 			// Ping clients and check for previous response
-			if (pingClock.getElapsedTime() >= cpp3ds::seconds(10)) {
+			if (pingClock.getElapsedTime() >= cpp3ds::seconds(PING_TIMEOUT)) {
 				cpp3ds::Packet packet;
 				packet << NetworkEvent::Ping;
 				for (auto& socket : m_sockets) {
@@ -122,8 +124,13 @@ void Server::run() {
 }
 
 
-void Server::exit()
+void Server::exit(std::string reason)
 {
+	cpp3ds::Packet packet;
+	if (reason.empty())
+		reason = "Shutdown by admin";
+	packet << NetworkEvent::ServerShutdown << reason;
+	sendToAllSockets(packet);
 	m_running = false;
 }
 

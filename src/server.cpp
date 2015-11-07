@@ -5,8 +5,11 @@ DrawAttack::Server* server;
 
 static void sighandler(int sig)
 {
+	std::string reason;
+	std::cout << std::endl << "Reason for shutdown: ";
+	std::getline(std::cin, reason);
 	std::cout << "Shutting down server..." << std::endl;
-	server->exit();
+	server->exit(reason);
 }
 
 int main(int argc, char** argv)

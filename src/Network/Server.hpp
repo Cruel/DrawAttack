@@ -12,6 +12,7 @@
 #define ROUND_DURATION 60.f
 #define ROUND_INTERMISSION 8.f
 #define ROUND_TIMEOUT 15.f
+#define PING_TIMEOUT 15.f
 
 namespace DrawAttack {
 
@@ -29,7 +30,7 @@ public:
 	void processSocket(cpp3ds::TcpSocket* socket);
 	bool validateEvent(cpp3ds::TcpSocket* socket, const NetworkEvent& event);
 	void run();
-	void exit();
+	void exit(std::string reason = std::string());
 	void removeSocket(cpp3ds::TcpSocket* socket);
 
 	void sendWaitForPlayers(cpp3ds::TcpSocket* socket, float playersNeeded);
