@@ -17,6 +17,7 @@ Server::Server(unsigned short port, std::string wordFilename)
 	std::string line;
 	if (wordFile.is_open()) {
 		while (std::getline(wordFile, line)) {
+			std::transform(line.begin(), line.end(), line.begin(), ::tolower);
 			m_wordList.push_back(line);
 		}
 		wordFile.close();
@@ -79,14 +80,15 @@ void Server::run() {
 			if (pingClock.getElapsedTime() >= cpp3ds::seconds(PING_TIMEOUT)) {
 				cpp3ds::Packet packet;
 				packet << NetworkEvent::Ping;
-				for (auto& socket : m_sockets) {
-					if (m_pingResponses[socket]) {
-						socket->send(packet);
-						m_pingResponses[socket] = false;
+				for (auto i = m_sockets.begin(); i != m_sockets.end();) {
+					if (m_pingResponses[*i]) {
+						(*i)->send(packet);
+						m_pingResponses[*i] = false;
+						i++;
 					} else {
 						// Timed out socket
 						std::cout << "A socket timed out." << std::endl;
-						removeSocket(socket);
+						removeSocket(*i);
 					}
 				}
 				pingClock.restart();
@@ -333,13 +335,13 @@ void Server::removeSocket(cpp3ds::TcpSocket *socket)
 	cpp3ds::Packet packet;
 	std::string name;
 	m_selector.remove(*socket);
-	for (std::map<cpp3ds::TcpSocket*, Player>::iterator i = m_players.begin(); i != m_players.end(); i++)
+	for (auto i = m_players.begin(); i != m_players.end(); i++)
 		if (i->first == socket) {
 			name = i->second.getName();
 			m_players.erase(i);
 			break;
 		}
-	for (std::vector<cpp3ds::TcpSocket*>::iterator i = m_sockets.begin(); i != m_sockets.end(); i++)
+	for (auto i = m_sockets.begin(); i != m_sockets.end(); i++)
 		if (*i == socket) {
 			m_sockets.erase(i);
 			break;
