@@ -8,9 +8,9 @@ TransitionMessageState::TransitionMessageState(StateStack& stack, Context& conte
 : State(stack, context)
 {
 	m_text.setColor(cpp3ds::Color::White);
-	m_text.setCharacterSize(20);
+	m_text.setCharacterSize(14);
 	m_text.setPosition(20.f, 60.f);
-	m_text.setString(_("%s\nPress any key to continue.", getContext().transition.message.c_str()));
+	m_text.setString(_("%s\nPress A to continue.", getContext().transition.message.c_str()));
 
 	m_rectangle.setSize(cpp3ds::Vector2f(400, 240));
 	m_rectangle.setFillColor(cpp3ds::Color(0, 0, 0, 200));
@@ -35,7 +35,7 @@ bool TransitionMessageState::update(float delta)
 bool TransitionMessageState::processEvent(const cpp3ds::Event& event)
 {
 	// If any key is pressed, trigger the next screen
-	if (event.type == cpp3ds::Event::KeyPressed)
+	if (event.type == cpp3ds::Event::KeyPressed && event.key.code == cpp3ds::Keyboard::A)
 	{
 		requestStackPop();
 
