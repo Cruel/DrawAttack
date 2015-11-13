@@ -1,0 +1,8 @@
+<server name="DrawAttack General #1">
+	<setting name="min-players">2</setting>
+	<setting name="max-players">16</setting>
+	<setting name="round-duration">60</setting>
+	<setting name="round-intermission">8</setting>
+	<setting name="inactive-timeout">15</setting>
+	<setting name="language">en</setting>
+</server>
