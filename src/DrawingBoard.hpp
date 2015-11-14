@@ -18,6 +18,9 @@ public:
 
 	void setLineThickness(float thickness);
 
+	void setColor(const cpp3ds::Color& color);
+	const cpp3ds::Color& getColor() const;
+
 	void clear();
 	void endLine();
 	void undo();

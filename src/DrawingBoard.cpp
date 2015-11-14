@@ -114,4 +114,15 @@ void DrawingBoard::undo()
 }
 
 
+void DrawingBoard::setColor(const cpp3ds::Color &color)
+{
+	m_color = color;
+}
+
+
+const cpp3ds::Color &DrawingBoard::getColor() const
+{
+	return m_color;
+}
+
 } // namespace DrawAttack
