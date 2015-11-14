@@ -1,0 +1,79 @@
+# NameSelectState.cpp
+#####################
+What is your name?
+Wie lautet dein Name?
+
+# PauseState.cpp
+################
+Resume
+Fortsetzen
+
+Disconnect
+Trennen
+
+Quit
+Beenden
+
+# PlayState.cpp
+###############
+%s joined the game.
+%s ist dem Spiel beigetreten.
+
+Name \"%s\" already taken.
+Nome \"%s\" bereits verwendet.
+
+%s left the game.
+%s hat das Spiel verlassen.
+
+Disconnected from server.\nReason: %s
+Trennung vom Server.\nGrund: %s
+
+%s is now drawing.
+%s ist an der Reihe.
+
+%s guessed the word: %s
+%s hat das Wort erraten: %s
+
+Round ended.
+Runde beendet.
+
+Word was: %s
+Das Wort lautete: %s
+
+%s passed.
+%s gibt weiter.
+
+Round ended due to inactivity.
+Runde wegen Inaktivität beendet.
+
+Game suspended until there are %d players.
+Spiel pausiert bis %d Spieler vorhanden sind.
+
+# ServerList.cpp
+################
+Failed to fetch server list.
+Herunterladen der Serverliste fehlgeschlagen.
+
+# ServerSelectState.cpp
+#######################
+Select a server:
+Wähle einen Server:
+
+Connect
+Verbinden
+
+Failed to connect. Try again.
+Verbindung fehlgeschlagen. Erneuter Versuch.
+
+# TitleState.cpp
+################
+Press any key to start. SELECT to exit.
+Drücke einen beliebigen Knopf zum starten. SELECT zum beenden.
+
+No internet connection.\nConnect to internet and retry.
+Keine Internetverbindung.\nVerbinden und erneut versuchen.
+
+# TransitionMessageState.cpp
+############################
+\nPress A to continue.
+\nDrücke A um fortzufahren.
