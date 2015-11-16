@@ -29,9 +29,9 @@ cpp3ds::Packet& operator >>(cpp3ds::Packet& packet, cpp3ds::Color& color)
 
 bool NetworkEvent::packetToEvent(cpp3ds::Packet& packet, NetworkEvent& event)
 {
-	if (packet.endOfPacket())
+	if (!(packet >> event.type))
 		return false;
-	packet >> event.type;
+
 	switch (event.type) {
 		case NetworkEvent::Version:
 		case NetworkEvent::ServerShutdown:
