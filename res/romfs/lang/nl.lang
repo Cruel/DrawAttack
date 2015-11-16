@@ -1,79 +1,79 @@
 # NameSelectState.cpp
 #####################
 What is your name?
-Qual é o seu nome?
+Wat is jouw naam?
 
 # PauseState.cpp
 ################
 Resume
-Continuar
+Verdergaan
 
 Disconnect
-Desconectar
+Verbinding verbreken
 
 Quit
-Sair
+Stoppen
 
 # PlayState.cpp
 ###############
 %s joined the game.
-%s se juntou ao jogo.
+%s is bij het spel gekomen.
 
 Name \"%s\" already taken.
-Nome \"%s\" já em uso.
+Naam \"%s\" is al genomen.
 
 %s left the game.
-%s saiu do jogo.
+%s heeft het spel verlaten.
 
 Disconnected from server.\nReason: %s
-Desconectado do servidor.\nRazão: %s
+Verbinding met server verbroken.\nReden: %s
 
 %s is now drawing.
-%s está agora desenhando.
+%s is nu aan het tekenen.
 
 %s guessed the word: %s
-%s acertou a palavra: %s
+%s raadde het woord: %s
 
 Round ended.
-Rodada terminou.
+Ronde is gedaan.
 
 Word was: %s
-Palavra era: %s
+Woord was: %s
 
 %s passed.
-%s passou.
+%s gaf op.
 
 Round ended due to inactivity.
-Rodada terminou devido à inatividade.
+Ronde beëindigd door geen activiteit.
 
 Game suspended until there are %d players.
-Jogo suspenso até que hajam %d jogadores.
+Spel uitgesteld tot er %d spelers zijn.
 
 # ServerList.cpp
 ################
 Failed to fetch server list.
-Falha ao obter a lista de servidores.
+Server lijst ophalen mislukt
 
 # ServerSelectState.cpp
 #######################
 Select a server:
-Selecione um servidor:
+Kies een server:
 
 Connect
-Conectar
+Connecteer
 
 Failed to connect. Try again.
-Falhou ao conectar. Tente novamente.
+Kon geen connectie maken. Probeer het opnieuw.
 
 # TitleState.cpp
 ################
 Press any key to start. SELECT to exit.
-Pressione qualquer tecla para iniciar. SELECT para sair.
+Druk op een knop om te starten. SELECT om weg te gaan.
 
 No internet connection.\nConnect to internet and retry.
-Sem conexão de internet.\nConecte-se à internet e tente novamente.
+Geen internet connectie.\nMaak connectie met het internet en probeer het opnieuw.
 
 # TransitionMessageState.cpp
 ############################
 \nPress A to continue.
-\nPressione A para continuar.
+\nDruk op A om verder te gaan.

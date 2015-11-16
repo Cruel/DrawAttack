@@ -57,7 +57,7 @@ Error al obtener la lista de servidores.
 # ServerSelectState.cpp
 #######################
 Select a server:
-Selecciona un servidor:
+Elija un servidor:
 
 Connect
 Conectar
@@ -68,7 +68,7 @@ Error al conectar. Inténtalo de nuevo.
 # TitleState.cpp
 ################
 Press any key to start. SELECT to exit.
-Pulsa cualquier tecla para empezar. SELECT para sair.
+Pulsa cualquier tecla para empezar. SELECT para salir.
 
 No internet connection.\nConnect to internet and retry.
 Sin conexión a internet.\nConéctate a internet e inténtalo de nuevo.
