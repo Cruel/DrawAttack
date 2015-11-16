@@ -39,89 +39,90 @@ Server::~Server() {
 
 
 void Server::run() {
+	cpp3ds::Clock pingClock;
+	
 	if (m_wordList.size() == 0)
 		return;
 
-	cpp3ds::Clock pingClock;
-
-	if (m_listener.listen(m_port) == cpp3ds::Socket::Done) {
-		m_selector.add(m_listener);
-		std::cout << "Started DrawAttack server on port " << m_port << "..." << std::endl;
-		m_running = true;
-		while (m_running) {
-			// Make the selector wait for data on any socket
-			if (m_selector.wait(cpp3ds::milliseconds(1000))) {
-				if (m_selector.isReady(m_listener)) {
-					cpp3ds::TcpSocket* socket = new cpp3ds::TcpSocket;
-					if (m_listener.accept(*socket) == cpp3ds::Socket::Done)
-					{
-						std::cout << "client connected" << std::endl;
-						// Add the new client to the clients list
-						sendPlayerData(socket);
-						socket->send(m_drawDataPacket);
-						m_pingResponses[socket] = true;
-						m_sockets.emplace_back(socket);
-						m_selector.add(*socket);
-					} else {
-						delete socket;
-					}
-				}
-				else
+	if (m_listener.listen(m_port) != cpp3ds::Socket::Done) {
+		cpp3ds::err() << "Failed to listen on port " << m_port << std::endl;
+		return;
+	}
+	
+	m_selector.add(m_listener);
+	std::cout << "Started DrawAttack server on port " << m_port << "..." << std::endl;
+	m_running = true;
+	while (m_running) {
+		// Make the selector wait for data on any socket
+		if (m_selector.wait(cpp3ds::milliseconds(1000))) {
+			if (m_selector.isReady(m_listener)) {
+				cpp3ds::TcpSocket* socket = new cpp3ds::TcpSocket;
+				if (m_listener.accept(*socket) == cpp3ds::Socket::Done)
 				{
-					for (auto& socket : m_sockets) {
-						if (m_selector.isReady(*socket)) {
-							processSocket(socket);
-						}
-					}
+					std::cout << "client connected" << std::endl;
+					// Add the new client to the clients list
+					sendPlayerData(socket);
+					socket->send(m_drawDataPacket);
+					m_pingResponses[socket] = true;
+					m_sockets.emplace_back(socket);
+					m_selector.add(*socket);
+				} else {
+					delete socket;
 				}
 			}
-
-			// Ping clients and check for previous response
-			if (pingClock.getElapsedTime() >= cpp3ds::seconds(PING_TIMEOUT)) {
-				cpp3ds::Packet packet;
-				packet << NetworkEvent::Ping;
-				for (auto i = m_sockets.begin(); i != m_sockets.end();) {
-					if (m_pingResponses[*i]) {
-						(*i)->send(packet);
-						m_pingResponses[*i] = false;
-						i++;
-					} else {
-						// Timed out socket
-						std::cout << "A socket timed out." << std::endl;
-						removeSocket(*i);
-					}
-				}
-				pingClock.restart();
-			}
-
-			if (m_mode == Play) {
-				if (m_roundClock.getElapsedTime() >= cpp3ds::seconds(ROUND_DURATION)) {
-					// Round time ended, nobody won
-					cpp3ds::Packet packet;
-					packet << NetworkEvent::RoundWord << m_currentWord << NetworkEvent::RoundFail;
-					sendToAllSockets(packet);
-					m_roundClock.restart();
-					m_mode = Wait;
-				}
-				if (m_roundTimeoutClock.getElapsedTime() >= cpp3ds::seconds(ROUND_TIMEOUT)) {
-					// Drawer hasn't been active, so end round
-					cpp3ds::Packet packet;
-					packet << NetworkEvent::RoundWord << m_currentWord << NetworkEvent::RoundTimeout;
-					sendToAllSockets(packet);
-					m_roundClock.restart();
-					m_mode = Wait;
-				}
-			} else if (m_mode == Wait) {
-				if (m_players.size() >= MIN_PLAYERS) {
-					if (m_roundClock.getElapsedTime() >= cpp3ds::seconds(ROUND_INTERMISSION)) {
-						Player drawer = getNextDrawer();
-						startRound(drawer, getNextWord(), ROUND_DURATION);
+			else
+			{
+				for (auto& socket : m_sockets) {
+					if (m_selector.isReady(*socket)) {
+						processSocket(socket);
 					}
 				}
 			}
 		}
-	} else {
-		cpp3ds::err() << "Failed to listen on port " << m_port << std::endl;
+
+		// Ping clients and check for previous response
+		if (pingClock.getElapsedTime() >= cpp3ds::seconds(PING_TIMEOUT)) {
+			cpp3ds::Packet packet;
+			packet << NetworkEvent::Ping;
+			for (auto i = m_sockets.begin(); i != m_sockets.end();) {
+				if (m_pingResponses[*i]) {
+					(*i)->send(packet);
+					m_pingResponses[*i] = false;
+					i++;
+				} else {
+					// Timed out socket
+					std::cout << "A socket timed out." << std::endl;
+					removeSocket(*i);
+				}
+			}
+			pingClock.restart();
+		}
+
+		if (m_mode == Play) {
+			if (m_roundClock.getElapsedTime() >= cpp3ds::seconds(ROUND_DURATION)) {
+				// Round time ended, nobody won
+				cpp3ds::Packet packet;
+				packet << NetworkEvent::RoundWord << m_currentWord << NetworkEvent::RoundFail;
+				sendToAllSockets(packet);
+				m_roundClock.restart();
+				m_mode = Wait;
+			}
+			if (m_roundTimeoutClock.getElapsedTime() >= cpp3ds::seconds(ROUND_TIMEOUT)) {
+				// Drawer hasn't been active, so end round
+				cpp3ds::Packet packet;
+				packet << NetworkEvent::RoundWord << m_currentWord << NetworkEvent::RoundTimeout;
+				sendToAllSockets(packet);
+				m_roundClock.restart();
+				m_mode = Wait;
+			}
+		} else if (m_mode == Wait) {
+			if (m_players.size() >= MIN_PLAYERS) {
+				if (m_roundClock.getElapsedTime() >= cpp3ds::seconds(ROUND_INTERMISSION)) {
+					Player drawer = getNextDrawer();
+					startRound(drawer, getNextWord(), ROUND_DURATION);
+				}
+			}
+		}
 	}
 }
 
