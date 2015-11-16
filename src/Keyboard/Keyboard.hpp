@@ -18,6 +18,7 @@ public:
 protected:
 	void draw(cpp3ds::RenderTarget& target, cpp3ds::RenderStates states) const;
 	void updateVertices();
+	void enterText();
 
 private:
 	struct State {

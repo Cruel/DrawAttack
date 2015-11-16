@@ -95,7 +95,7 @@ void Keyboard::loadFromFile(const std::string &filename)
 
 		m_input.styleIndex = 0;
 		for (const Style& style: m_styles) {
-			if (style.name.compare(styleName) == 0)
+			if (style.name == styleName)
 				break;
 			m_input.styleIndex++;
 		}
@@ -172,7 +172,7 @@ void Keyboard::loadButtons(Layout& layout, const XMLElement* layoutNode) {
 
 			button.styleIndex = 0;
 			for (const Style& style: m_styles) {
-				if (style.name.compare(styleName) == 0)
+				if (style.name == styleName)
 					break;
 				button.styleIndex++;
 			}
@@ -332,12 +332,7 @@ bool Keyboard::processEvents(const cpp3ds::Event &event)
 			m_usingTempLayout = false;
 			switch (m_activeButton->type) {
 				case Enter:
-					if (!m_input.data.isEmpty()) {
-						m_strings.push(m_input.data);
-						m_input.data.clear();
-						m_input.text.setString(m_input.data);
-						m_input.cursorPosition = 0;
-					}
+					enterText();
 					break;
 				case Backspace:
 					if (m_input.cursorPosition == m_input.data.getSize())
@@ -348,7 +343,7 @@ bool Keyboard::processEvents(const cpp3ds::Event &event)
 				case LayoutChange:
 					m_layoutIndex = 0;
 					for (const Layout& layout: m_layouts) {
-						if (layout.name.compare(m_activeButton->data) == 0)
+						if (layout.name == m_activeButton->data)
 							break;
 						m_layoutIndex++;
 					}
@@ -357,7 +352,7 @@ bool Keyboard::processEvents(const cpp3ds::Event &event)
 					m_usingTempLayout = true;
 					m_tempLayoutIndex = 0;
 					for (const Layout& layout: m_layouts) {
-						if (layout.name.compare(m_activeButton->data) == 0)
+						if (layout.name == m_activeButton->data)
 							break;
 						m_tempLayoutIndex++;
 					}
@@ -377,6 +372,13 @@ bool Keyboard::processEvents(const cpp3ds::Event &event)
 		if (m_activeButton != NULL && !m_activeButton->rect.contains(event.touch.x, event.touch.y)) {
 			m_activeButton = NULL;
 			m_needsUpdate = true;
+		}
+	}
+
+	if (event.type == cpp3ds::Event::KeyPressed) {
+		if (event.key.code == cpp3ds::Keyboard::A) {
+			enterText();
+			return false;
 		}
 	}
 
@@ -424,5 +426,15 @@ bool Keyboard::popString(cpp3ds::String& string)
 	return true;
 }
 
+
+void Keyboard::enterText()
+{
+	if (!m_input.data.isEmpty()) {
+		m_strings.push(m_input.data);
+		m_input.data.clear();
+		m_input.text.setString(m_input.data);
+		m_input.cursorPosition = 0;
+	}
+}
 
 } // namesapce util3ds
