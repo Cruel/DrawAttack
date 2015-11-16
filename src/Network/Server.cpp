@@ -101,7 +101,7 @@ void Server::run() {
 		}
 
 		if (m_mode == Play) {
-			if (m_roundClock.getElapsedTime() >= cpp3ds::seconds(ROUND_DURATION)) {
+			if (m_roundClock.getElapsedTime() >= cpp3ds::seconds(m_config.getRoundDuration())) {
 				// Round time ended, nobody won
 				cpp3ds::Packet packet;
 				packet << NetworkEvent::RoundWord << m_currentWord << NetworkEvent::RoundFail;
@@ -109,7 +109,7 @@ void Server::run() {
 				m_roundClock.restart();
 				m_mode = Wait;
 			}
-			if (m_roundTimeoutClock.getElapsedTime() >= cpp3ds::seconds(ROUND_TIMEOUT)) {
+			if (m_roundTimeoutClock.getElapsedTime() >= cpp3ds::seconds(m_config.getInactiveTimeout())) {
 				// Drawer hasn't been active, so end round
 				cpp3ds::Packet packet;
 				packet << NetworkEvent::RoundWord << m_currentWord << NetworkEvent::RoundTimeout;
@@ -118,15 +118,13 @@ void Server::run() {
 				m_mode = Wait;
 			}
 		} else if (m_mode == Wait) {
-			if (m_players.size() >= MIN_PLAYERS) {
-				if (m_roundClock.getElapsedTime() >= cpp3ds::seconds(ROUND_INTERMISSION)) {
+			if (m_players.size() >= m_config.getMinPlayers()) {
+				if (m_roundClock.getElapsedTime() >= cpp3ds::seconds(m_config.getRoundIntermission())) {
 					Player drawer = getNextDrawer();
-					startRound(drawer, getNextWord(), ROUND_DURATION);
+					startRound(drawer, getNextWord(), m_config.getRoundDuration());
 				}
 			}
 		}
-	} else {
-		cpp3ds::err() << "Failed to listen on port " << m_port << std::endl;
 	}
 }
 

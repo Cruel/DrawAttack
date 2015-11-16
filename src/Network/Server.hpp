@@ -7,7 +7,7 @@
 #include "ServerConfig.hpp"
 #include <list>
 
-#define SERVER_VERSION "1.0b"
+#define SERVER_VERSION "1.1"
 #define PING_TIMEOUT 15.f
 
 namespace DrawAttack {

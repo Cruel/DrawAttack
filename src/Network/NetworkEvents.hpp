@@ -45,6 +45,7 @@ public:
 
 	enum EventType {
 		Version, // Must be first for backwards compatibility
+		ServerInfo,
 		ServerShutdown,
 		PlayerData,
 		PlayerConnected,
@@ -56,6 +57,7 @@ public:
 		DrawEndline,
 		DrawUndo,
 		DrawClear,
+		DrawColor,
 		WaitForPlayers,
 		RoundStart,
 		RoundWord,
@@ -65,9 +67,6 @@ public:
 		RoundTimeout,
 		Voice,
 		Ping,
-
-		ServerInfo,
-		DrawColor,
 
 		Count
 	};
