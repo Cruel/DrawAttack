@@ -22,7 +22,6 @@ public:
 	void renderBottomScreen(cpp3ds::Window& window);
 
 private:
-	cpp3ds::Text textFPS;
 	StateStack m_stateStack;
 
 	// Shared State context variables
@@ -30,6 +29,7 @@ private:
 	cpp3ds::String m_name;
 	cpp3ds::String m_data;
 	State::TransitionData m_transition;
+	cpp3ds::Color m_color;
 };
 
 }

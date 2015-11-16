@@ -11,6 +11,7 @@ NameSelectState::NameSelectState(StateStack& stack, Context& context)
 
 	m_keyboard.loadFromFile("kb/keyboard.xml");
 	m_text.setString(_("What is your name?"));
+	m_text.setCharacterSize(20);
 	m_text.setPosition(std::round(160.f - m_text.getLocalBounds().width / 2.f), 2.f);
 }
 

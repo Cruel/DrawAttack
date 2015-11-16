@@ -9,6 +9,7 @@ PlayState::PlayState(StateStack& stack, Context& context)
 : State(stack, context)
 , m_mode(Mode::Spectate)
 , m_boardCopy(nullptr)
+, m_chatLogVelocity(0.f)
 {
 	m_textBackgroundTexture.loadFromFile("images/button-radius.9.png");
 	m_buttonTexture.loadFromFile("images/button.9.png");
@@ -17,7 +18,8 @@ PlayState::PlayState(StateStack& stack, Context& context)
 	m_buttonClear.setTexture(&m_buttonTexture);
 	m_buttonClear.getText().setCharacterSize(20);
 	m_buttonClear.setTextOffset(cpp3ds::Vector2f(-1, -1));
-	m_buttonClear.setColor(cpp3ds::Color::White);
+	m_buttonClear.setColor(cpp3ds::Color(255,255,255,0));
+	m_buttonClear.setTextColor(cpp3ds::Color(0,0,0,0));
 	m_buttonClear.setActiveColor(cpp3ds::Color(200,200,255));
 	m_buttonClear.getText().setFont(m_iconFont);
 	m_buttonClear.setString(L"\uf1f8");
@@ -29,7 +31,8 @@ PlayState::PlayState(StateStack& stack, Context& context)
 
 	m_buttonUndo.setTexture(&m_buttonTexture);
 	m_buttonUndo.getText().setCharacterSize(20);
-	m_buttonUndo.setColor(cpp3ds::Color::White);
+	m_buttonUndo.setColor(cpp3ds::Color(255,255,255,0));
+	m_buttonUndo.setTextColor(cpp3ds::Color(0,0,0,0));
 	m_buttonUndo.setActiveColor(cpp3ds::Color(200,200,255));
 	m_buttonUndo.getText().setFont(m_iconFont);
 	m_buttonUndo.setString(L"\uf0e2");
@@ -39,9 +42,22 @@ PlayState::PlayState(StateStack& stack, Context& context)
 		m_board.undo();
 	});
 
+	m_buttonColor.setTexture(&m_buttonTexture);
+	m_buttonColor.getText().setCharacterSize(20);
+	m_buttonColor.setColor(cpp3ds::Color(255,255,255,0));
+	m_buttonColor.setTextColor(cpp3ds::Color(0,0,0,0));
+	m_buttonColor.setActiveColor(cpp3ds::Color(200,200,255));
+	m_buttonColor.getText().setFont(m_iconFont);
+	m_buttonColor.setString(L"\uf1fb");
+	m_buttonColor.setPosition(m_buttonUndo.getPosition().x + m_buttonUndo.getSize().x, 240 - m_buttonColor.getSize().y);
+	m_buttonColor.onClick([this]{
+		requestStackPush(States::ColorPicker);
+	});
+
 	m_buttonPass.setTexture(&m_buttonTexture);
 	m_buttonPass.getText().setCharacterSize(20);
-	m_buttonPass.setColor(cpp3ds::Color::White);
+	m_buttonPass.setColor(cpp3ds::Color(255,255,255,0));
+	m_buttonPass.setTextColor(cpp3ds::Color(0,0,0,0));
 	m_buttonPass.setActiveColor(cpp3ds::Color(200,200,255));
 	m_buttonPass.setTextOffset(cpp3ds::Vector2f(0, -1));
 	m_buttonPass.getText().setFont(m_iconFont);
@@ -53,6 +69,7 @@ PlayState::PlayState(StateStack& stack, Context& context)
 
 	m_board.create(320, 240);
 	m_board.setLineThickness(1);
+	m_board.setPosition(40.f, 0.f);
 
 	m_roundWordText.setTexture(&m_textBackgroundTexture);
 	m_roundWordText.setColor(cpp3ds::Color(255, 255, 255, 50));
@@ -60,6 +77,9 @@ PlayState::PlayState(StateStack& stack, Context& context)
 	m_roundWordText.getText().setStyle(cpp3ds::Text::Bold);
 
 	m_countdownText.setTexture(&m_textBackgroundTexture);
+
+	m_chatLog.setCharacterSize(14);
+	m_chatLog.setPosition(40.f, -3.f);
 
 	m_keyboard.loadFromFile("kb/keyboard.xml");
 
@@ -98,8 +118,10 @@ void PlayState::renderTopScreen(cpp3ds::Window& window)
 	}
 
 	// Draw scoreboard on top
-	if (m_scoreBoard.isVisible())
+	if (m_scoreBoard.isVisible() && !m_chatLog.isVisible())
 		window.draw(m_scoreBoard);
+	if (m_chatLog.isVisible())
+		window.draw(m_chatLog);
 }
 
 
@@ -114,12 +136,14 @@ void PlayState::renderBottomScreen(cpp3ds::Window& window)
 		}
 		window.draw(m_buttonUndo);
 		window.draw(m_buttonPass);
+		window.draw(m_buttonColor);
 		window.draw(m_buttonClear);
 	} else {
 		if (m_boardCopy) {
 			window.draw(m_board);
 			window.draw(m_buttonUndo);
 			window.draw(m_buttonPass);
+			window.draw(m_buttonColor);
 			window.draw(m_buttonClear);
 		}
 	}
@@ -177,6 +201,20 @@ bool PlayState::update(float delta)
 
 	m_scoreBoard.update(delta);
 
+	m_chatLog.update(delta);
+	if (m_chatLog.isVisible())
+		m_chatLog.moveScrollPosition(m_chatLogVelocity * delta);
+
+	cpp3ds::Color color = getContext().color;
+	if (m_buttonColor.getColor() != color) {
+		color.a = m_buttonColor.getColor().a;
+		m_buttonColor.setColor(color);
+		if ((color.r * 0.299f) + (color.g * 0.587f) + (color.b * 0.114f) < 160.f)
+			m_buttonColor.setTextColor(cpp3ds::Color(255, 255, 255, m_buttonColor.getTextColor().a));
+		else
+			m_buttonColor.setTextColor(cpp3ds::Color(0, 0, 0, m_buttonColor.getTextColor().a));
+	}
+
 	m_tweenManager.update(delta);
 	return true;
 }
@@ -196,10 +234,13 @@ bool PlayState::processEvent(const cpp3ds::Event& event)
 			return false;
 		if (!m_buttonUndo.processEvent(event))
 			return false;
+		if (!m_buttonColor.processEvent(event))
+			return false;
 		if (!m_buttonPass.processEvent(event))
 			return false;
 
 		if (event.type == cpp3ds::Event::TouchMoved) {
+			m_board.setColor(getContext().color);
 			if (!m_boardCopy) {
 				const cpp3ds::Vector2f p = m_board.getInverseTransform().transformPoint(event.touch.x, event.touch.y);
 				m_board.addPoint(p.x, p.y);
@@ -217,13 +258,22 @@ bool PlayState::processEvent(const cpp3ds::Event& event)
 
 	if (event.type == cpp3ds::Event::KeyPressed)
 	{
-		if (event.key.code == cpp3ds::Keyboard::Y) {
-			m_scoreBoard.show();
+		switch (event.key.code) {
+			case cpp3ds::Keyboard::X:
+				if (m_chatLog.isVisible())
+					m_chatLog.hide();
+				else
+					m_chatLog.show();
+				return false;
+			case cpp3ds::Keyboard::Y:
+				m_scoreBoard.show();
+				return false;
+			case cpp3ds::Keyboard::Start:
+				requestStackPush(States::Pause);
+				return false;
+			default:
+				break;
 		}
-		if (event.key.code == cpp3ds::Keyboard::Start) {
-			requestStackPush(States::Pause);
-		}
-		return false;
 	}
 
 	if (event.type == cpp3ds::Event::KeyReleased)
@@ -232,6 +282,9 @@ bool PlayState::processEvent(const cpp3ds::Event& event)
 			m_scoreBoard.hide();
 		}
 	}
+
+	if (event.type == cpp3ds::Event::JoystickMoved)
+		m_chatLogVelocity = -event.joystickMove.y * 6.f;
 
 	return true;
 }
@@ -277,25 +330,31 @@ void PlayState::changeMode(PlayState::Mode mode)
 			.target(0.f)
 			.ease(TweenEngine::TweenEquations::easeOutCubic)
 			.start(m_tweenManager);
+
 		TweenEngine::Tween::to(m_buttonUndo, gui3ds::Button::COLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
 		TweenEngine::Tween::to(m_buttonUndo, gui3ds::Button::TEXTCOLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
 		TweenEngine::Tween::to(m_buttonClear, gui3ds::Button::COLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
 		TweenEngine::Tween::to(m_buttonClear, gui3ds::Button::TEXTCOLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
+		TweenEngine::Tween::to(m_buttonColor, gui3ds::Button::COLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
+		TweenEngine::Tween::to(m_buttonColor, gui3ds::Button::TEXTCOLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
 		TweenEngine::Tween::to(m_buttonPass, gui3ds::Button::COLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
 		TweenEngine::Tween::to(m_buttonPass, gui3ds::Button::TEXTCOLOR_ALPHA, 0.5f).target(0.f).start(m_tweenManager);
 	}
 	else
 	{
-		TweenEngine::Tween::to(m_buttonUndo, gui3ds::Button::COLOR_ALPHA, 2.f).target(200.f).delay(1.f).start(m_tweenManager);
-		TweenEngine::Tween::to(m_buttonUndo, gui3ds::Button::TEXTCOLOR_ALPHA, 2.f).target(255.f).delay(1.f).start(m_tweenManager);
-		TweenEngine::Tween::to(m_buttonClear, gui3ds::Button::COLOR_ALPHA, 2.f).target(200.f).delay(1.f).start(m_tweenManager);
-		TweenEngine::Tween::to(m_buttonClear, gui3ds::Button::TEXTCOLOR_ALPHA, 2.f).target(255.f).delay(1.f).start(m_tweenManager);
-		TweenEngine::Tween::to(m_buttonPass, gui3ds::Button::COLOR_ALPHA, 2.f).target(200.f).delay(1.f).start(m_tweenManager);
-		TweenEngine::Tween::to(m_buttonPass, gui3ds::Button::TEXTCOLOR_ALPHA, 2.f).target(255.f).delay(1.f).start(m_tweenManager);
-
 		if (mode == Mode::Draw) {
 			setTimerPosition(true);
 			m_boardCopy = new DrawingBoard(m_board);
+
+			TweenEngine::Tween::to(m_buttonUndo, gui3ds::Button::COLOR_ALPHA, 2.f).target(200.f).delay(1.f).start(m_tweenManager);
+			TweenEngine::Tween::to(m_buttonUndo, gui3ds::Button::TEXTCOLOR_ALPHA, 2.f).target(255.f).delay(1.f).start(m_tweenManager);
+			TweenEngine::Tween::to(m_buttonClear, gui3ds::Button::COLOR_ALPHA, 2.f).target(200.f).delay(1.f).start(m_tweenManager);
+			TweenEngine::Tween::to(m_buttonClear, gui3ds::Button::TEXTCOLOR_ALPHA, 2.f).target(255.f).delay(1.f).start(m_tweenManager);
+			TweenEngine::Tween::to(m_buttonColor, gui3ds::Button::COLOR_ALPHA, 2.f).target(255.f).delay(1.f).start(m_tweenManager);
+			TweenEngine::Tween::to(m_buttonColor, gui3ds::Button::TEXTCOLOR_ALPHA, 2.f).target(200.f).delay(1.f).start(m_tweenManager);
+			TweenEngine::Tween::to(m_buttonPass, gui3ds::Button::COLOR_ALPHA, 2.f).target(200.f).delay(1.f).start(m_tweenManager);
+			TweenEngine::Tween::to(m_buttonPass, gui3ds::Button::TEXTCOLOR_ALPHA, 2.f).target(255.f).delay(1.f).start(m_tweenManager);
+
 			TweenEngine::Tween::to(*m_boardCopy, DrawingBoard::POSITION_Y, 1.f)
 				.target(-240.f)
 				.ease(TweenEngine::TweenEquations::easeOutCubic)
@@ -369,6 +428,7 @@ bool PlayState::processNetworkEvent(const NetworkEvent &event)
 			auto player = m_players.find(event.text.name);
 			if (player != m_players.end()) {
 				player->second.bubble.pushString(event.text.value);
+				m_chatLog.addLine(event.text.name, event.text.value.toAnsiString());
 				std::cout << event.text.name << ": " << event.text.value.toAnsiString() << std::endl;
 			}
 			break;
@@ -387,6 +447,8 @@ bool PlayState::processNetworkEvent(const NetworkEvent &event)
 			m_countdownClock.restart();
 			m_roundWord.clear();
 			m_board.clear();
+			m_board.setColor(cpp3ds::Color::Black);
+			getContext().color = cpp3ds::Color::Black;
 			break;
 		case NetworkEvent::RoundWord:
 			m_roundWord = event.roundWord;
@@ -448,6 +510,10 @@ bool PlayState::processNetworkEvent(const NetworkEvent &event)
 		case NetworkEvent::DrawEndline:
 			if (m_mode != Draw)
 				m_board.endLine();
+			break;
+		case NetworkEvent::DrawColor:
+			if (m_mode != Draw)
+				m_board.setColor(event.color);
 			break;
 		case NetworkEvent::Ping:
 			// Respond to PING so we're not disconnected

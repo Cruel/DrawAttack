@@ -6,9 +6,10 @@
 namespace DrawAttack {
 
 
-Server::Server(unsigned short port, std::string wordFilename)
+Server::Server(unsigned short port, std::string configFilename, std::string wordFilename)
 : m_port(port)
 , m_running(false)
+, m_config(configFilename)
 , m_wordFilename(wordFilename)
 , m_mode(Wait)
 , m_currentDrawer(nullptr)
@@ -39,84 +40,88 @@ Server::~Server() {
 
 
 void Server::run() {
+	cpp3ds::Clock pingClock;
+	
 	if (m_wordList.size() == 0)
 		return;
 
-	cpp3ds::Clock pingClock;
-
-	if (m_listener.listen(m_port) == cpp3ds::Socket::Done) {
-		m_selector.add(m_listener);
-		std::cout << "Started DrawAttack server on port " << m_port << "..." << std::endl;
-		m_running = true;
-		while (m_running) {
-			// Make the selector wait for data on any socket
-			if (m_selector.wait(cpp3ds::milliseconds(1000))) {
-				if (m_selector.isReady(m_listener)) {
-					cpp3ds::TcpSocket* socket = new cpp3ds::TcpSocket;
-					if (m_listener.accept(*socket) == cpp3ds::Socket::Done)
-					{
-						std::cout << "client connected" << std::endl;
-						// Add the new client to the clients list
-						sendPlayerData(socket);
-						socket->send(m_drawDataPacket);
-						m_pingResponses[socket] = true;
-						m_sockets.emplace_back(socket);
-						m_selector.add(*socket);
-					} else {
-						delete socket;
-					}
-				}
-				else
+	if (m_listener.listen(m_port) != cpp3ds::Socket::Done) {
+		cpp3ds::err() << "Failed to listen on port " << m_port << std::endl;
+		return;
+	}
+	
+	m_selector.add(m_listener);
+	std::cout << "Started DrawAttack server on port " << m_port << "..." << std::endl;
+	m_running = true;
+	while (m_running) {
+		// Make the selector wait for data on any socket
+		if (m_selector.wait(cpp3ds::milliseconds(1000))) {
+			if (m_selector.isReady(m_listener)) {
+				cpp3ds::TcpSocket* socket = new cpp3ds::TcpSocket;
+				if (m_listener.accept(*socket) == cpp3ds::Socket::Done)
 				{
-					for (auto& socket : m_sockets) {
-						if (m_selector.isReady(*socket)) {
-							processSocket(socket);
-						}
+					std::cout << "client connected" << std::endl;
+					// Add the new client to the clients list
+					sendPlayerData(socket);
+					socket->send(m_drawDataPacket);
+					m_pingResponses[socket] = true;
+					m_sockets.emplace_back(socket);
+					m_selector.add(*socket);
+				} else {
+					delete socket;
+				}
+			}
+			else
+			{
+				for (auto& socket : m_sockets) {
+					if (m_selector.isReady(*socket)) {
+						processSocket(socket);
 					}
 				}
 			}
+		}
 
-			// Ping clients and check for previous response
-			if (pingClock.getElapsedTime() >= cpp3ds::seconds(PING_TIMEOUT)) {
-				cpp3ds::Packet packet;
-				packet << NetworkEvent::Ping;
-				for (auto i = m_sockets.begin(); i != m_sockets.end();) {
-					if (m_pingResponses[*i]) {
-						(*i)->send(packet);
-						m_pingResponses[*i] = false;
-						i++;
-					} else {
-						// Timed out socket
-						std::cout << "A socket timed out." << std::endl;
-						removeSocket(*i);
-					}
+		// Ping clients and check for previous response
+		if (pingClock.getElapsedTime() >= cpp3ds::seconds(PING_TIMEOUT)) {
+			cpp3ds::Packet packet;
+			packet << NetworkEvent::Ping;
+			for (auto i = m_sockets.begin(); i != m_sockets.end();) {
+				if (m_pingResponses[*i]) {
+					(*i)->send(packet);
+					m_pingResponses[*i] = false;
+					i++;
+				} else {
+					// Timed out socket
+					std::cout << "A socket timed out." << std::endl;
+					removeSocket(*i);
 				}
 				pingClock.restart();
 			}
+			pingClock.restart();
+		}
 
-			if (m_mode == Play) {
-				if (m_roundClock.getElapsedTime() >= cpp3ds::seconds(ROUND_DURATION)) {
-					// Round time ended, nobody won
-					cpp3ds::Packet packet;
-					packet << NetworkEvent::RoundWord << m_currentWord << NetworkEvent::RoundFail;
-					sendToAllSockets(packet);
-					m_roundClock.restart();
-					m_mode = Wait;
-				}
-				if (m_roundTimeoutClock.getElapsedTime() >= cpp3ds::seconds(ROUND_TIMEOUT)) {
-					// Drawer hasn't been active, so end round
-					cpp3ds::Packet packet;
-					packet << NetworkEvent::RoundWord << m_currentWord << NetworkEvent::RoundTimeout;
-					sendToAllSockets(packet);
-					m_roundClock.restart();
-					m_mode = Wait;
-				}
-			} else if (m_mode == Wait) {
-				if (m_players.size() >= MIN_PLAYERS) {
-					if (m_roundClock.getElapsedTime() >= cpp3ds::seconds(ROUND_INTERMISSION)) {
-						Player drawer = getNextDrawer();
-						startRound(drawer, getNextWord(), ROUND_DURATION);
-					}
+		if (m_mode == Play) {
+			if (m_roundClock.getElapsedTime() >= cpp3ds::seconds(ROUND_DURATION)) {
+				// Round time ended, nobody won
+				cpp3ds::Packet packet;
+				packet << NetworkEvent::RoundWord << m_currentWord << NetworkEvent::RoundFail;
+				sendToAllSockets(packet);
+				m_roundClock.restart();
+				m_mode = Wait;
+			}
+			if (m_roundTimeoutClock.getElapsedTime() >= cpp3ds::seconds(ROUND_TIMEOUT)) {
+				// Drawer hasn't been active, so end round
+				cpp3ds::Packet packet;
+				packet << NetworkEvent::RoundWord << m_currentWord << NetworkEvent::RoundTimeout;
+				sendToAllSockets(packet);
+				m_roundClock.restart();
+				m_mode = Wait;
+			}
+		} else if (m_mode == Wait) {
+			if (m_players.size() >= MIN_PLAYERS) {
+				if (m_roundClock.getElapsedTime() >= cpp3ds::seconds(ROUND_INTERMISSION)) {
+					Player drawer = getNextDrawer();
+					startRound(drawer, getNextWord(), ROUND_DURATION);
 				}
 			}
 		}
@@ -181,7 +186,7 @@ void Server::processSocket(cpp3ds::TcpSocket* socket)
 
 			switch(event.type) {
 				case NetworkEvent::Version:
-					if (event.server.message.compare(SERVER_VERSION) != 0) {
+					if (event.server.message != SERVER_VERSION) {
 						packet.clear();
 						std::string message = _("Incompatible client version %s (needs %s)", event.server.message.c_str(), SERVER_VERSION);
 						packet << NetworkEvent::ServerShutdown << message;
@@ -189,6 +194,14 @@ void Server::processSocket(cpp3ds::TcpSocket* socket)
 						removeSocket(socket);
 					}
 					break;
+				case NetworkEvent::ServerInfo: {
+					cpp3ds::Packet packet;
+					packet << NetworkEvent::ServerInfo;
+					packet << m_config.getServerName() << m_config.getLanguage();
+					packet << static_cast<unsigned int>(m_players.size()) << m_config.getMaxPlayers();
+					socket->send(packet);
+					break;
+				}
 				case NetworkEvent::PlayerConnected: {
 					std::cout << event.player.name << " connected." << std::endl;
 					bool collision = false;
@@ -209,8 +222,8 @@ void Server::processSocket(cpp3ds::TcpSocket* socket)
 					NetworkEvent::eventToPacket(event, packetSend);
 					sendToAllSockets(packetSend);
 					packetSend.clear();
-					if (m_players.size() < MIN_PLAYERS) {
-						sendWaitForPlayers(socket, MIN_PLAYERS);
+					if (m_players.size() < m_config.getMinPlayers()) {
+						sendWaitForPlayers(socket, m_config.getMinPlayers());
 					}
 					break;
 				}
@@ -245,12 +258,16 @@ void Server::processSocket(cpp3ds::TcpSocket* socket)
 					NetworkEvent::eventToPacket(event, packetSend);
 					m_roundTimeoutClock.restart();
 					break;
-				case NetworkEvent::DrawUndo: {
+				case NetworkEvent::DrawUndo:
 					m_drawDataPacket << event.type;
 					NetworkEvent::eventToPacket(event, packetSend);
 					m_roundTimeoutClock.restart();
 					break;
-				}
+				case NetworkEvent::DrawColor:
+					m_drawDataPacket << event.type << event.color;
+					NetworkEvent::eventToPacket(event, packetSend);
+					m_roundTimeoutClock.restart();
+					break;
 				case NetworkEvent::RoundPass:
 					packetSend << NetworkEvent::RoundWord << m_currentWord;
 					NetworkEvent::eventToPacket(event, packetSend);
@@ -283,6 +300,7 @@ bool Server::validateEvent(cpp3ds::TcpSocket* socket, const NetworkEvent &event)
 		case NetworkEvent::DrawEndline:
 		case NetworkEvent::DrawUndo:
 		case NetworkEvent::DrawClear:
+		case NetworkEvent::DrawColor:
 			if (m_currentDrawer != socket || m_mode == Wait)
 				return false;
 			break;
@@ -352,9 +370,9 @@ void Server::removeSocket(cpp3ds::TcpSocket *socket)
 	if (!name.empty()) {
 		std::cout << "Player disconnected: " << name << std::endl;
 		packet << NetworkEvent::PlayerDisconnected << name;
-		if (m_players.size() < MIN_PLAYERS) {
+		if (m_players.size() < m_config.getMinPlayers()) {
 			m_mode = Wait;
-			packet << NetworkEvent::WaitForPlayers << MIN_PLAYERS;
+			packet << NetworkEvent::WaitForPlayers << m_config.getMinPlayers();
 		}
 		sendToAllSockets(packet);
 	}

@@ -4,14 +4,10 @@
 #include <cpp3ds/Network.hpp>
 #include "Player.hpp"
 #include "NetworkEvents.hpp"
+#include "ServerConfig.hpp"
 #include <list>
 
-#define MIN_PLAYERS 3.f
 #define SERVER_VERSION "1.0b"
-#define MAX_PLAYERS 16.f
-#define ROUND_DURATION 60.f
-#define ROUND_INTERMISSION 8.f
-#define ROUND_TIMEOUT 15.f
 #define PING_TIMEOUT 15.f
 
 namespace DrawAttack {
@@ -23,7 +19,7 @@ public:
 		Play,
 	};
 
-	Server(unsigned short port, std::string wordFilename);
+	Server(unsigned short port, std::string configFilename, std::string wordFilename);
 	~Server();
 	void sendToAllSockets(cpp3ds::Packet& packet);
 	void sendToAllPlayers(cpp3ds::Packet& packet);
@@ -64,6 +60,8 @@ private:
 	std::map<cpp3ds::TcpSocket*, Player> m_players;
 	std::map<cpp3ds::TcpSocket*, bool> m_pingResponses;
 	cpp3ds::SocketSelector m_selector;
+
+	ServerConfig m_config;
 
 	cpp3ds::Packet m_drawDataPacket;
 };

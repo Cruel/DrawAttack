@@ -2,6 +2,7 @@
 #define DRAWATTACK_CLIENT_HPP
 
 #include <cpp3ds/Network.hpp>
+#include <cpp3ds/Graphics/Color.hpp>
 #include "NetworkEvents.hpp"
 
 #define CLIENT_VERSION "1.0b"
@@ -28,6 +29,7 @@ public:
 	void sendClear();
 	void sendPing();
 	void sendRoundPass();
+	void sendColor(const cpp3ds::Color& color);
 private:
 	cpp3ds::TcpSocket m_socket;
 	cpp3ds::Packet m_packet;

@@ -11,6 +11,7 @@ namespace DrawAttack {
 			NameSelect,
 			Play,
 			Loading,
+			ColorPicker,
 			Pause,
 			TransitionMessage,
 		};

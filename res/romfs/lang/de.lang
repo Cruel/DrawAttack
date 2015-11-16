@@ -20,13 +20,13 @@ Beenden
 %s ist dem Spiel beigetreten.
 
 Name \"%s\" already taken.
-Nome \"%s\" bereits verwendet.
+Name \"%s\" wird bereits verwendet.
 
 %s left the game.
 %s hat das Spiel verlassen.
 
 Disconnected from server.\nReason: %s
-Trennung vom Server.\nGrund: %s
+Verbindung vom Server getrennt.\nGrund: %s
 
 %s is now drawing.
 %s ist an der Reihe.

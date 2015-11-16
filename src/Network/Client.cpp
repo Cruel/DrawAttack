@@ -20,13 +20,13 @@ Client::~Client()
 cpp3ds::Socket::Status Client::connect(cpp3ds::IpAddress ip, unsigned short port)
 {
 	m_socket.setBlocking(true);
-	cpp3ds::Socket::Status status = m_socket.connect(ip, port, cpp3ds::seconds(1.f));
+	cpp3ds::Socket::Status status = m_socket.connect(ip, port);
 	if (status == cpp3ds::Socket::Done) {
-		m_socket.setBlocking(false);
 		m_packet << NetworkEvent::Version << std::string(CLIENT_VERSION);
 	} else {
 		m_socket.disconnect();
 	}
+	m_socket.setBlocking(false);
 	return status;
 }
 
@@ -106,6 +106,12 @@ void Client::sendPing()
 void Client::sendRoundPass()
 {
 	m_packet << NetworkEvent::RoundPass;
+}
+
+
+void Client::sendColor(const cpp3ds::Color &color)
+{
+	m_packet << NetworkEvent::DrawColor << color;
 }
 
 

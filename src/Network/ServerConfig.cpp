@@ -5,8 +5,8 @@ namespace DrawAttack {
 
 ServerConfig::ServerConfig(const std::string &filename)
 : m_name("DrawAttack Server")
-, m_minPlayers(2.f)
-, m_maxPlayers(16.f)
+, m_minPlayers(2)
+, m_maxPlayers(16)
 , m_roundDuration(60.f)
 , m_roundIntermission(8.f)
 , m_inactiveTimeout(15.f)
@@ -26,9 +26,9 @@ ServerConfig::ServerConfig(const std::string &filename)
 			{
 				std::string settingName = settingNode->Attribute("name");
 				if (settingName == "min-players")
-					settingNode->QueryFloatText(&m_minPlayers);
+					settingNode->QueryUnsignedText(&m_minPlayers);
 				else if (settingName == "max-players")
-					settingNode->QueryFloatText(&m_maxPlayers);
+					settingNode->QueryUnsignedText(&m_maxPlayers);
 				else if (settingName == "round-duration")
 					settingNode->QueryFloatText(&m_roundDuration);
 				else if (settingName == "round-intermission")
@@ -58,12 +58,12 @@ const std::string &ServerConfig::getLanguage() const
 	return m_language;
 }
 
-const float ServerConfig::getMinPlayers() const
+const unsigned int ServerConfig::getMinPlayers() const
 {
 	return m_minPlayers;
 }
 
-const float ServerConfig::getMaxPlayers() const
+const unsigned int ServerConfig::getMaxPlayers() const
 {
 	return m_maxPlayers;
 }

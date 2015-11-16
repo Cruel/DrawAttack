@@ -31,7 +31,7 @@ public:
 	void setString(const cpp3ds::String& string);
 	const cpp3ds::String& getString() const;
 
-	cpp3ds::Text& getText();
+	cpp3ds::Text& getText() const;
 
 	void setTextColor(const cpp3ds::Color& color);
 	const cpp3ds::Color& getTextColor() const;

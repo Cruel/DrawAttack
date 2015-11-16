@@ -7,6 +7,7 @@
 #include "States/NameSelectState.hpp"
 #include "States/LoadingState.hpp"
 #include "Notification.hpp"
+#include "States/ColorPickerState.hpp"
 
 
 using namespace cpp3ds;
@@ -16,10 +17,9 @@ namespace DrawAttack {
 
 
 DrawAttack::DrawAttack()
-: m_stateStack(State::Context(m_client, m_name, m_data, m_transition))
+: m_color(cpp3ds::Color::Black)
+, m_stateStack(State::Context(m_client, m_name, m_data, m_transition, m_color))
 {
-	textFPS.setColor(Color::Blue);
-
 	m_stateStack.registerState<TitleState>(States::Title);
 	m_stateStack.registerState<ServerSelectState>(States::ServerSelect);
 	m_stateStack.registerState<NameSelectState>(States::NameSelect);
@@ -27,7 +27,8 @@ DrawAttack::DrawAttack()
 	m_stateStack.registerState<PauseState>(States::Pause);
 	m_stateStack.registerState<TransitionMessageState>(States::TransitionMessage);
 	m_stateStack.registerState<LoadingState>(States::Loading);
-	m_stateStack.pushState(States::ServerSelect);
+	m_stateStack.registerState<ColorPickerState>(States::ColorPicker);
+	m_stateStack.pushState(States::Title);
 }
 
 DrawAttack::~DrawAttack()
@@ -42,12 +43,6 @@ void DrawAttack::update(float delta)
 	if (m_stateStack.isEmpty())
 		exit();
 
-	static int i;
-	if (i++ % 10 == 0) {
-		textFPS.setString(_("%.1f fps", 1.f / delta));
-		textFPS.setPosition(395 - textFPS.getGlobalBounds().width, 200);
-	}
-
 	Notification::update(delta);
 }
 
@@ -61,7 +56,6 @@ void DrawAttack::renderTopScreen(Window& window)
 	window.clear(Color::White);
 	m_stateStack.renderTopScreen(window);
 	window.setView(window.getDefaultView());
-	window.draw(textFPS);
 	for (auto& notification : Notification::notifications)
 		window.draw(*notification);
 }

@@ -8,6 +8,7 @@
 #include "../SpeechBubble.hpp"
 #include "../Network/Player.hpp"
 #include "../ScoreBoard.hpp"
+#include "../ChatLog.hpp"
 #include <cpp3ds/Graphics/Sprite.hpp>
 #include <cpp3ds/Graphics/Text.hpp>
 #include <TweenEngine/TweenManager.h>
@@ -65,10 +66,14 @@ private:
 
 	cpp3ds::Font    m_iconFont;
 	cpp3ds::Texture m_buttonTexture;
-	gui3ds::Button  m_buttonUndo;
 	gui3ds::Button  m_buttonClear;
+	gui3ds::Button  m_buttonUndo;
+	gui3ds::Button  m_buttonColor;
+	gui3ds::Button  m_buttonPass;
 
 	ScoreBoard m_scoreBoard;
+	ChatLog m_chatLog;
+	float m_chatLogVelocity;
 };
 
 } // namespace DrawAttack

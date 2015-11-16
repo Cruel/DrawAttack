@@ -14,8 +14,8 @@ static void sighandler(int sig)
 
 int main(int argc, char** argv)
 {
-	if (argc < 3) {
-		std::cout << "Usage: " << argv[0] << " {port} {word file}" << std::endl;
+	if (argc < 4) {
+		std::cout << "Usage: " << argv[0] << " <port> <config file> <word file>" << std::endl;
 		return 0;
 	}
 
@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 	signal(SIGTERM, &sighandler);
 	signal(SIGINT,  &sighandler);
 
-	server = new DrawAttack::Server(atoi(argv[1]), argv[2]);
+	server = new DrawAttack::Server(atoi(argv[1]), argv[2], argv[3]);
 	server->run();
 	delete server;
 

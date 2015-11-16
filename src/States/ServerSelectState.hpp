@@ -7,6 +7,7 @@
 #include "../GUI/NinePatch.hpp"
 #include "../SpeechBubble.hpp"
 #include "../ScoreBoard.hpp"
+#include "../ChatLog.hpp"
 
 namespace DrawAttack {
 
@@ -25,7 +26,8 @@ private:
 	cpp3ds::Text m_caption;
 	ServerList m_serverList;
 	cpp3ds::Texture m_buttonTexture;
-	gui3ds::Button m_button;
+	gui3ds::Button m_buttonConnect;
+	gui3ds::Button m_buttonRefresh;
 	TweenEngine::TweenManager m_tweenManager;
 	bool m_menuVisible;
 };

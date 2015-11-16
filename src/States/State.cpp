@@ -4,11 +4,12 @@
 
 namespace DrawAttack {
 
-State::Context::Context(Client& client, cpp3ds::String& name, cpp3ds::String& data, TransitionData& transition)
+State::Context::Context(Client& client, cpp3ds::String& name, cpp3ds::String& data, TransitionData& transition, cpp3ds::Color& color)
 : client(client)
 , name(name)
 , data(data)
 , transition(transition)
+, color(color)
 {
 	transition.nextStateID = States::None;
 }

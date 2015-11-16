@@ -33,6 +33,8 @@ set(SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/src/ServerListItem.cpp
 	${PROJECT_SOURCE_DIR}/src/ServerList.cpp
 	${PROJECT_SOURCE_DIR}/src/ScoreBoard.cpp
+	${PROJECT_SOURCE_DIR}/src/ChatLog.cpp
+	${PROJECT_SOURCE_DIR}/src/RichText.cpp
 	${PROJECT_SOURCE_DIR}/src/GUI/Button.cpp
 	${PROJECT_SOURCE_DIR}/src/GUI/NinePatch.cpp
 	${PROJECT_SOURCE_DIR}/src/Keyboard/Keyboard.cpp
@@ -46,6 +48,7 @@ set(SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/src/States/TransitionMessageState.cpp
 	${PROJECT_SOURCE_DIR}/src/States/NameSelectState.cpp
 	${PROJECT_SOURCE_DIR}/src/States/LoadingState.cpp
+	${PROJECT_SOURCE_DIR}/src/States/ColorPickerState.cpp
 	${PROJECT_SOURCE_DIR}/src/Network/Client.cpp
 	${PROJECT_SOURCE_DIR}/src/Network/Player.cpp
 	${PROJECT_SOURCE_DIR}/src/Network/NetworkEvents.cpp
@@ -54,8 +57,10 @@ set(SOURCE_FILES
 set(SERVER_SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/src/server.cpp
     ${PROJECT_SOURCE_DIR}/src/Network/Server.cpp
+    ${PROJECT_SOURCE_DIR}/src/Network/ServerConfig.cpp
     ${PROJECT_SOURCE_DIR}/src/Network/Player.cpp
     ${PROJECT_SOURCE_DIR}/src/Network/NetworkEvents.cpp
+	${PROJECT_SOURCE_DIR}/src/Keyboard/tinyxml2.cpp
 )
 
 set(SHADER_AS nihstro)

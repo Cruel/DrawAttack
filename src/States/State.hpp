@@ -6,6 +6,7 @@
 #include <cpp3ds/System/Time.hpp>
 #include <cpp3ds/Window/Event.hpp>
 #include <memory>
+#include <cpp3ds/Graphics/Color.hpp>
 
 
 namespace cpp3ds
@@ -26,17 +27,18 @@ public:
 
 	struct TransitionData
 	{
-		std::string message;
+		cpp3ds::String message;
 		States::ID  nextStateID;
 	};
 
 	struct Context
 	{
-		Context(Client& client, cpp3ds::String& name, cpp3ds::String& data, TransitionData& transition);
+		Context(Client& client, cpp3ds::String& name, cpp3ds::String& data, TransitionData& transition, cpp3ds::Color& color);
 		Client& client;
 		cpp3ds::String& name;
 		cpp3ds::String& data;
 		TransitionData& transition;
+		cpp3ds::Color& color;
 	};
 
 	State(StateStack& stack, Context& context);

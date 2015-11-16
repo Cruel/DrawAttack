@@ -3,6 +3,7 @@
 
 #include <cpp3ds/Network/Packet.hpp>
 #include <cpp3ds/System/String.hpp>
+#include <cpp3ds/Graphics/Color.hpp>
 
 namespace DrawAttack {
 
@@ -11,6 +12,13 @@ public:
 
 	struct ServerEvent {
 		std::string message;
+	};
+
+	struct ServerInfoEvent {
+		std::string name;
+		std::string language;
+		unsigned int playerCount;
+		unsigned int playerMax;
 	};
 
 	struct PlayerEvent {
@@ -58,6 +66,9 @@ public:
 		Voice,
 		Ping,
 
+		ServerInfo,
+		DrawColor,
+
 		Count
 	};
 
@@ -68,9 +79,11 @@ public:
 		DrawEvent draw;
 		TextEvent text;
 		ServerEvent server;
+		ServerInfoEvent serverInfo;
 		WaitEvent wait;
 		RoundEvent round;
 		std::string roundWord;
+		cpp3ds::Color color;
 //	};
 
 	struct Player {
@@ -87,6 +100,8 @@ public:
 cpp3ds::Packet& operator <<(cpp3ds::Packet& packet, const NetworkEvent::EventType& type);
 cpp3ds::Packet& operator >>(cpp3ds::Packet& packet, NetworkEvent::EventType& type);
 
+cpp3ds::Packet& operator <<(cpp3ds::Packet& packet, const cpp3ds::Color& type);
+cpp3ds::Packet& operator >>(cpp3ds::Packet& packet, cpp3ds::Color& type);
 
 }
 

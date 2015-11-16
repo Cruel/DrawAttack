@@ -13,14 +13,6 @@
 #include <cpp3ds/System/Vector2.hpp>
 #include "TweenTransformable.hpp"
 
-namespace cpp3ds
-{
-class Font;
-class String;
-template <class T> class Rect;
-typedef Rect<float> FloatRect;
-}
-
 namespace util3ds
 {
 

@@ -15,6 +15,18 @@ cpp3ds::Packet& operator >>(cpp3ds::Packet& packet, NetworkEvent::EventType& typ
 	return packet;
 }
 
+cpp3ds::Packet& operator <<(cpp3ds::Packet& packet, const cpp3ds::Color& color)
+{
+	return packet << color.r << color.g << color.b;
+}
+
+cpp3ds::Packet& operator >>(cpp3ds::Packet& packet, cpp3ds::Color& color)
+{
+	color.a = 255;
+	packet >> color.r >> color.g >> color.b;
+	return packet;
+}
+
 bool NetworkEvent::packetToEvent(cpp3ds::Packet& packet, NetworkEvent& event)
 {
 	if (packet.endOfPacket())
@@ -24,6 +36,10 @@ bool NetworkEvent::packetToEvent(cpp3ds::Packet& packet, NetworkEvent& event)
 		case NetworkEvent::Version:
 		case NetworkEvent::ServerShutdown:
 			packet >> event.server.message;
+			break;
+		case NetworkEvent::ServerInfo:
+			packet >> event.serverInfo.name >> event.serverInfo.language;
+			packet >> event.serverInfo.playerCount >> event.serverInfo.playerMax;
 			break;
 		case NetworkEvent::PlayerData: {
 			cpp3ds::Uint8 playerCount;
@@ -46,6 +62,9 @@ bool NetworkEvent::packetToEvent(cpp3ds::Packet& packet, NetworkEvent& event)
 		case NetworkEvent::DrawMove:
 		case NetworkEvent::DrawEndline:
 			packet >> event.draw.x >> event.draw.y;
+			break;
+		case NetworkEvent::DrawColor:
+			packet >> event.color;
 			break;
 		case NetworkEvent::WaitForPlayers:
 			packet >> event.wait.value;
@@ -80,6 +99,10 @@ bool NetworkEvent::eventToPacket(NetworkEvent &event, cpp3ds::Packet &packet)
 		case NetworkEvent::ServerShutdown:
 			packet << event.server.message;
 			break;
+		case NetworkEvent::ServerInfo:
+			packet << event.serverInfo.name << event.serverInfo.language;
+			packet << event.serverInfo.playerCount << event.serverInfo.playerMax;
+			break;
 		case NetworkEvent::PlayerData:
 			break;
 		case NetworkEvent::PlayerConnected:
@@ -93,6 +116,9 @@ bool NetworkEvent::eventToPacket(NetworkEvent &event, cpp3ds::Packet &packet)
 		case NetworkEvent::DrawMove:
 		case NetworkEvent::DrawEndline:
 			packet << event.draw.x << event.draw.y;
+			break;
+		case NetworkEvent::DrawColor:
+			packet << event.color;
 			break;
 		case NetworkEvent::WaitForPlayers:
 			packet << event.wait.value;

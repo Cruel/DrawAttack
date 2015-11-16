@@ -17,7 +17,7 @@ SpeechBubble::SpeechBubble()
 
 	setSide(Left);
 	getText().setCharacterSize(12);
-	setColor(cpp3ds::Color(150, 255, 255));
+	setColor(cpp3ds::Color(150, 255, 255, 200));
 	setTextOffset(cpp3ds::Vector2f(-1, -1));
 
 	TweenEngine::Tween::setWaypointsLimit(1);

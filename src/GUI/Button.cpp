@@ -275,7 +275,7 @@ void Button::setValues(int tweenType, float *newValues)
 }
 
 
-cpp3ds::Text &Button::getText()
+cpp3ds::Text &Button::getText() const
 {
 	return m_text;
 }

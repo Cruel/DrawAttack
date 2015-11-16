@@ -12,8 +12,8 @@ public:
 
 	const std::string& getServerName() const;
 	const std::string& getLanguage() const;
-	const float getMinPlayers() const;
-	const float getMaxPlayers() const;
+	const unsigned int getMinPlayers() const;
+	const unsigned int getMaxPlayers() const;
 	const float getRoundDuration() const;
 	const float getRoundIntermission() const;
 	const float getInactiveTimeout() const;
@@ -22,8 +22,8 @@ private:
 	std::string m_name;
 	std::string m_language;
 
-	float m_minPlayers;
-	float m_maxPlayers;
+	unsigned int m_minPlayers;
+	unsigned int m_maxPlayers;
 	float m_roundDuration;
 	float m_roundIntermission;
 	float m_inactiveTimeout;
