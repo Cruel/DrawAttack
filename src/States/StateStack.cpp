@@ -17,7 +17,7 @@ void StateStack::update(float delta)
 	// Iterate from top to bottom, stop as soon as update() returns false
 	for (auto itr = m_stack.rbegin(); itr != m_stack.rend(); ++itr)
 	{
-		if (!(*itr)->update(delta))
+		if (!itr->pointer->update(delta))
 			break;
 	}
 
@@ -27,15 +27,15 @@ void StateStack::update(float delta)
 void StateStack::renderTopScreen(cpp3ds::Window &window)
 {
 	// Draw all active states from bottom to top
-	for(const State::Ptr& state : m_stack)
-		state->renderTopScreen(window);
+	for(const StateStackItem& state : m_stack)
+		state.pointer->renderTopScreen(window);
 }
 
 void StateStack::renderBottomScreen(cpp3ds::Window &window)
 {
 	// Draw all active states from bottom to top
-	for(const State::Ptr& state : m_stack)
-		state->renderBottomScreen(window);
+	for(const StateStackItem& state : m_stack)
+		state.pointer->renderBottomScreen(window);
 }
 
 void StateStack::processEvent(const cpp3ds::Event& event)
@@ -43,7 +43,7 @@ void StateStack::processEvent(const cpp3ds::Event& event)
 	// Iterate from top to bottom, stop as soon as handleEvent() returns false
 	for (auto itr = m_stack.rbegin(); itr != m_stack.rend(); ++itr)
 	{
-		if (!(*itr)->processEvent(event))
+		if (!itr->pointer->processEvent(event))
 			break;
 	}
 
@@ -85,7 +85,7 @@ void StateStack::applyPendingChanges()
 		switch (change.action)
 		{
 			case Push:
-				m_stack.push_back(createState(change.stateID));
+				m_stack.push_back({change.stateID, createState(change.stateID)});
 				break;
 
 			case Pop:

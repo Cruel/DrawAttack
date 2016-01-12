@@ -86,7 +86,7 @@ set(CPP3DS_ARM_FLAGS "-g -O2 -fno-rtti -fno-exceptions -march=armv6k -mtune=mpco
 set(CPP3DS_EMU_FLAGS "-g -O0")
 
 set(CPP3DS_ARM_LIBS cpp3ds-window cpp3ds-graphics cpp3ds-audio cpp3ds-network cpp3ds-system gl3ds ctru freetype png z vorbisenc vorbisfile vorbis ogg bz2)
-set(CPP3DS_EMU_LIBS cpp3ds-emu sfml-graphics sfml-window sfml-system sfml-network sfml-audio GLEW GL jpeg freetype vorbisenc vorbisfile vorbis ogg)
+set(CPP3DS_EMU_LIBS cpp3ds-emu sfml-graphics sfml-window sfml-system sfml-network sfml-audio openal GLEW GL jpeg freetype vorbisenc vorbisfile vorbis ogg)
 
 add_subdirectory(${CPP3DS}/cmake/template_arm build/arm)
 add_subdirectory(${CPP3DS}/cmake/template_emu build/emu)

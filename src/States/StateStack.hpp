@@ -54,9 +54,14 @@ private:
 		States::ID stateID;
 	};
 
+	struct StateStackItem
+	{
+		States::ID id;
+		State::Ptr pointer;
+	};
 
 private:
-	std::vector<State::Ptr>    m_stack;
+	std::vector<StateStackItem>    m_stack;
 	std::vector<PendingChange> m_pendingList;
 
 	State::Context m_context;

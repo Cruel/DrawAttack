@@ -31,7 +31,7 @@ void State::requestStackPush(States::ID stateID)
 
 void State::requestStackPop(States::ID stateID)
 {
-	m_stack->popState(stateID);
+	m_stack->popState();
 }
 
 void State::requestStackClear()
