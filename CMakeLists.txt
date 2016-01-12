@@ -7,8 +7,13 @@ set(APP_TITLE "DrawAttack")
 set(APP_DESCRIPTION "Multiplayer drawing battle game.")
 set(APP_AUTHOR "Cruel")
 set(APP_ICON ${PROJECT_SOURCE_DIR}/res/app/icon.png)
+
+# CIA values
+set(APP_UNIQUE_ID 0x7718)
+set(APP_PRODUCT_CODE ${PROJECT_NAME})
 set(BANNER_IMAGE ${PROJECT_SOURCE_DIR}/res/app/banner.png)
 set(BANNER_SOUND ${PROJECT_SOURCE_DIR}/res/app/banner.wav)
+set(CIA_CONFIG ${PROJECT_SOURCE_DIR}/res/app/cia.rsf)
 
 # Include cpp3ds cmake module
 set(CPP3DS $ENV{CPP3DS})
@@ -77,10 +82,10 @@ target_link_libraries(${PROJECT_NAME}-server cpp3ds-emu sfml-system)
 ##################################################
 # Don't usually need to change anything below
 ##################################################
-set(CPP3DS_ARM_FLAGS "-g -O2 -fno-rtti -fno-exceptions -march=armv6k -mtune=mpcore -mfloat-abi=hard")
+set(CPP3DS_ARM_FLAGS "-g -O2 -fno-rtti -fno-exceptions -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft")
 set(CPP3DS_EMU_FLAGS "-g -O0")
 
-set(CPP3DS_ARM_LIBS cpp3ds-window cpp3ds-graphics cpp3ds-audio cpp3ds-network cpp3ds-system gl3ds ctru freetype png z vorbisenc vorbisfile vorbis ogg)
+set(CPP3DS_ARM_LIBS cpp3ds-window cpp3ds-graphics cpp3ds-audio cpp3ds-network cpp3ds-system gl3ds ctru freetype png z vorbisenc vorbisfile vorbis ogg bz2)
 set(CPP3DS_EMU_LIBS cpp3ds-emu sfml-graphics sfml-window sfml-system sfml-network sfml-audio GLEW GL jpeg freetype vorbisenc vorbisfile vorbis ogg)
 
 add_subdirectory(${CPP3DS}/cmake/template_arm build/arm)
