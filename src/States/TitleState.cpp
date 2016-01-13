@@ -57,7 +57,7 @@ bool TitleState::processEvent(const cpp3ds::Event& event)
 			return true;
 		}
 
-		if (cpp3ds::Service::isEnabled(cpp3ds::NETWORK)) {
+		if (cpp3ds::Service::isEnabled(cpp3ds::Network)) {
 			requestStackPop();
 			requestStackPush(States::ServerSelect);
 		} else {
