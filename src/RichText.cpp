@@ -313,7 +313,7 @@ cpp3ds::Text RichText::createText(const cpp3ds::String &string) const
 {
     cpp3ds::Text text;
     text.setString(string);
-    text.setColor(m_currentColor);
+    text.setFillColor(m_currentColor);
     text.setStyle(m_currentStyle);
     text.setCharacterSize(m_characterSize);
     if (m_font)
@@ -356,9 +356,9 @@ cpp3ds::Uint8 RichText::getOpacity() const
 void RichText::Line::setOpacity(cpp3ds::Uint8 alpha)
 {
 	for (auto& text : m_texts) {
-		cpp3ds::Color color = text.getColor();
+		cpp3ds::Color color = text.getFillColor();
 		color.a = alpha;
-		text.setColor(color);
+		text.setFillColor(color);
 	}
 }
 
@@ -368,7 +368,7 @@ cpp3ds::Uint8 RichText::Line::getOpacity() const
 	if (m_texts.empty())
 		return 0;
 
-	return m_texts.front().getColor().a;
+	return m_texts.front().getFillColor().a;
 }
 
 } // namespace util3ds

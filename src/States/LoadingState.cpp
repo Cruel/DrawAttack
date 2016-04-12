@@ -7,7 +7,7 @@ namespace DrawAttack {
 LoadingState::LoadingState(StateStack& stack, Context& context)
 : State(stack, context)
 {
-	m_text.setColor(cpp3ds::Color::Black);
+	m_text.setFillColor(cpp3ds::Color::Black);
 	m_text.setCharacterSize(20);
 	m_text.setString("You have been disconnected.\nPress any key to continue.");
 }

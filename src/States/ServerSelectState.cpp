@@ -9,7 +9,7 @@ ServerSelectState::ServerSelectState(StateStack& stack, Context& context)
 , m_menuVisible(false)
 {
 	m_caption.setString(_("Select a server:"));
-	m_caption.setColor(cpp3ds::Color::Black);
+	m_caption.setFillColor(cpp3ds::Color::Black);
 	m_caption.setPosition(10.f, 100.f);
 
 	m_buttonTexture.loadFromFile("images/button.9.png");

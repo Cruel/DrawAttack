@@ -556,12 +556,12 @@ void PlayState::updatePlayerInfo()
 void PlayState::setTimerPosition(bool top)
 {
 	if (top) {
-		m_countdownText.getText().setColor(cpp3ds::Color(100, 0, 0));
+		m_countdownText.getText().setFillColor(cpp3ds::Color(100, 0, 0));
 		m_countdownText.getText().setCharacterSize(22);
 		m_countdownText.setColor(cpp3ds::Color(255, 255, 255, 50));
 		m_countdownText.setPosition(cpp3ds::Vector2f(180, 100));
 	} else {
-		m_countdownText.getText().setColor(cpp3ds::Color(100, 0, 0));
+		m_countdownText.getText().setFillColor(cpp3ds::Color(100, 0, 0));
 		m_countdownText.getText().setCharacterSize(16);
 		m_countdownText.setColor(cpp3ds::Color(0, 0, 0, 50));
 		m_countdownText.setPosition(cpp3ds::Vector2f(290, 5));

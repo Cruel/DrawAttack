@@ -74,10 +74,19 @@ void ColorPickerState::renderBottomScreen(cpp3ds::Window &window)
 
 	if (m_position != cpp3ds::Vector2f(0, 0))
 	{
+#ifdef EMULATION
 		GLubyte *pixels = (GLubyte*) malloc(3);
+#else
+		u8 *pixels = (u8*) malloc(3);
+#endif
 		if (pixels) {
+#ifdef EMULATION
 			glReadPixels(static_cast<GLint>(m_position.x), static_cast<GLint>(m_position.y), 1, 1, GL_BGR, GL_UNSIGNED_BYTE, pixels);
 			cpp3ds::Color color = cpp3ds::Color(pixels[2], pixels[1], pixels[0]);
+#else
+
+			cpp3ds::Color color = cpp3ds::Color(pixels[2], pixels[1], pixels[0]);
+#endif
 			free(pixels);
 
 			// Bad solution to ignore black picked up from crosshair image

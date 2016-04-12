@@ -12,12 +12,12 @@ TitleState::TitleState(StateStack& stack, Context& context)
 {
 	m_textTitle.setCharacterSize(50);
 	m_textTitle.setStyle(cpp3ds::Text::Bold);
-	m_textTitle.setColor(cpp3ds::Color::Black);
+	m_textTitle.setFillColor(cpp3ds::Color::Black);
 	m_textTitle.setString(_("DrawAttack"));
 	m_textTitle.setPosition(std::floor(200.f - m_textTitle.getLocalBounds().width / 2), 10.f);
 
 	m_text.setCharacterSize(12);
-	m_text.setColor(cpp3ds::Color::Black);
+	m_text.setFillColor(cpp3ds::Color::Black);
 	m_text.setString(_("Press any key to start. SELECT to exit."));
 	m_text.setPosition(std::floor(200.f - m_text.getLocalBounds().width / 2), 150.f);
 }

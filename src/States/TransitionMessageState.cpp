@@ -7,7 +7,7 @@ namespace DrawAttack {
 TransitionMessageState::TransitionMessageState(StateStack& stack, Context& context)
 : State(stack, context)
 {
-	m_text.setColor(cpp3ds::Color::White);
+	m_text.setFillColor(cpp3ds::Color::White);
 	m_text.setCharacterSize(14);
 	m_text.setPosition(20.f, 60.f);
 	m_text.setString(getContext().transition.message + _("\nPress A to continue."));
@@ -41,7 +41,7 @@ bool TransitionMessageState::processEvent(const cpp3ds::Event& event)
 
 		States::ID newState = getContext().transition.nextStateID;
 		if (newState != States::None) {
-			requestStackPop();
+			requestStackClear();
 			requestStackPush(newState);
 		}
 

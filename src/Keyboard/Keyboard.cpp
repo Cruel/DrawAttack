@@ -225,7 +225,7 @@ void Keyboard::updateButtonVertices(Button& button)
 	const State& state = &button == m_activeButton ? style.activeState : style.defaultState;
 
 	button.text.setCharacterSize(state.fontSize);
-	button.text.setColor(state.color);
+	button.text.setFillColor(state.color);
 	button.text.setPosition(button.rect.left + state.offsetX, button.rect.top + state.offsetY);
 
 	cpp3ds::Vertex vertices[4];
@@ -266,7 +266,7 @@ void Keyboard::updateVertices()
 
 	// Update input text position
 	const Style& style = m_styles[m_input.styleIndex];
-	m_input.text.setColor(cpp3ds::Color::White);
+	m_input.text.setFillColor(cpp3ds::Color::White);
 	m_input.text.setPosition(static_cast<int>(160.f + style.defaultState.offsetX - m_input.text.getGlobalBounds().width / 2),
 							 m_input.text.getPosition().y);
 
