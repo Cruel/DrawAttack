@@ -66,6 +66,38 @@ void ColorPickerState::renderTopScreen(cpp3ds::Window &window)
 	// Nothing
 }
 
+#ifndef EMULATION
+
+static inline u32 MortonInterleave(u32 x, u32 y)
+{
+	u32 i = (x & 7) | ((y & 7) << 8); // ---- -210
+	i = (i ^ (i << 2)) & 0x1313;      // ---2 --10
+	i = (i ^ (i << 1)) & 0x1515;      // ---2 -1-0
+	i = (i | (i >> 7)) & 0x3F;
+	return i;
+}
+
+static inline u32 GetMortonOffset(u32 x, u32 y, u32 bytes_per_pixel)
+{
+	const unsigned int block_height = 8;
+	const unsigned int coarse_x = x & ~7;
+
+	u32 i = MortonInterleave(x, y);
+
+	const unsigned int offset = coarse_x * block_height;
+
+	return (i + offset) * bytes_per_pixel;
+}
+
+static u32 GetPixelOffset(u32 x, u32 y, u32 width, u32 height, u32 bytes_per_pixel)
+{
+	int new_y = height - y;
+	const u32 coarse_y = new_y & ~7;
+	u32 stride = width * bytes_per_pixel;
+	return GetMortonOffset(x, new_y, bytes_per_pixel) + coarse_y * stride;
+}
+
+#endif
 
 void ColorPickerState::renderBottomScreen(cpp3ds::Window &window)
 {
@@ -76,18 +108,17 @@ void ColorPickerState::renderBottomScreen(cpp3ds::Window &window)
 	{
 #ifdef EMULATION
 		GLubyte *pixels = (GLubyte*) malloc(3);
-#else
-		u8 *pixels = (u8*) malloc(3);
-#endif
+
 		if (pixels) {
-#ifdef EMULATION
 			glReadPixels(static_cast<GLint>(m_position.x), static_cast<GLint>(m_position.y), 1, 1, GL_BGR, GL_UNSIGNED_BYTE, pixels);
 			cpp3ds::Color color = cpp3ds::Color(pixels[2], pixels[1], pixels[0]);
-#else
-
-			cpp3ds::Color color = cpp3ds::Color(pixels[2], pixels[1], pixels[0]);
-#endif
 			free(pixels);
+#else
+		{
+			cpp3ds::Uint8* buffer = reinterpret_cast<cpp3ds::Uint8*>(window.getCitroTarget()->renderBuf.colorBuf.data);
+			buffer += GetPixelOffset(m_position.y, 320 - m_position.x, 240, 320, 4);
+			cpp3ds::Color color = cpp3ds::Color(buffer[3], buffer[2], buffer[1]);
+#endif
 
 			// Bad solution to ignore black picked up from crosshair image
 			if (color != cpp3ds::Color::Black)
