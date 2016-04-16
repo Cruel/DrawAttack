@@ -5,7 +5,7 @@
 #include <cpp3ds/Graphics/Color.hpp>
 #include "NetworkEvents.hpp"
 
-#define CLIENT_VERSION "1.1"
+#define CLIENT_VERSION "1.2"
 
 namespace DrawAttack {
 
@@ -30,6 +30,9 @@ public:
 	void sendPing();
 	void sendRoundPass();
 	void sendColor(const cpp3ds::Color& color);
+
+	void sendVoiceData(const std::string& name, const char *samples, unsigned int sizeInBytes);
+	void sendVoiceEnd(const std::string& name);
 private:
 	cpp3ds::TcpSocket m_socket;
 	cpp3ds::Packet m_packet;

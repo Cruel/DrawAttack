@@ -57,6 +57,8 @@ set(SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/src/Network/Client.cpp
 	${PROJECT_SOURCE_DIR}/src/Network/Player.cpp
 	${PROJECT_SOURCE_DIR}/src/Network/NetworkEvents.cpp
+	${PROJECT_SOURCE_DIR}/src/Network/NetworkSoundRecorder.cpp
+	${PROJECT_SOURCE_DIR}/src/Network/NetworkSoundStream.cpp
 	${TWEEN_ENGINE_SOURCE}
 )
 set(SERVER_SOURCE_FILES
@@ -77,16 +79,16 @@ link_directories(${CPP3DS}/lib)
 add_executable(${PROJECT_NAME}-server ${SERVER_SOURCE_FILES})
 set_target_properties(${PROJECT_NAME}-server PROPERTIES COMPILE_DEFINITIONS "EMULATION")
 set_target_properties(${PROJECT_NAME}-server PROPERTIES COMPILE_FLAGS "-std=c++11")
-target_link_libraries(${PROJECT_NAME}-server cpp3ds-emu sfml-system)
+target_link_libraries(${PROJECT_NAME}-server cpp3ds-emu sfml-system mbedtls mbedx509 mbedcrypto)
 
 ##################################################
 # Don't usually need to change anything below
 ##################################################
-set(CPP3DS_ARM_FLAGS "-g -O2 -fno-rtti -fno-exceptions -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft")
-set(CPP3DS_EMU_FLAGS "-g -O0")
+set(CPP3DS_ARM_FLAGS "-O2 -fno-rtti -fno-exceptions -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft")
+set(CPP3DS_EMU_FLAGS "-O0")
 
-set(CPP3DS_ARM_LIBS cpp3ds-window cpp3ds-graphics cpp3ds-audio cpp3ds-network cpp3ds-system gl3ds ctru freetype png z vorbisenc vorbisfile vorbis ogg bz2)
-set(CPP3DS_EMU_LIBS cpp3ds-emu sfml-graphics sfml-window sfml-system sfml-network sfml-audio openal GLEW GL jpeg freetype vorbisenc vorbisfile vorbis ogg)
+set(CPP3DS_ARM_LIBS cpp3ds-window cpp3ds-graphics cpp3ds-audio cpp3ds-network cpp3ds-system citro3d mbedtls mbedx509 mbedcrypto ctru freetype png z vorbisenc vorbisfile vorbis ogg bz2 speex speexdsp)
+set(CPP3DS_EMU_LIBS cpp3ds-emu sfml-graphics sfml-window sfml-system sfml-network sfml-audio openal GLEW GL jpeg freetype vorbisenc vorbisfile vorbis ogg mbedtls mbedx509 mbedcrypto pthread speex speexdsp)
 
 add_subdirectory(${CPP3DS}/cmake/template_arm build/arm)
 add_subdirectory(${CPP3DS}/cmake/template_emu build/emu)

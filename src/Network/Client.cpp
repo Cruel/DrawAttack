@@ -127,4 +127,16 @@ const cpp3ds::Time& Client::getRateLimit() const
 }
 
 
+void Client::sendVoiceData(const std::string& name, const char *samples, unsigned int sizeInBytes)
+{
+	m_packet << NetworkEvent::VoiceData << name << sizeInBytes;
+	m_packet.append(samples, sizeInBytes);
+}
+
+
+void Client::sendVoiceEnd(const std::string& name)
+{
+	m_packet << NetworkEvent::VoiceEnd << name << static_cast<unsigned int>(0);
+}
+
 } // namespace DrawAttack

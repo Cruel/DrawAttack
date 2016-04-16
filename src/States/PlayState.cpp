@@ -1,6 +1,9 @@
 #include "PlayState.hpp"
 #include "../Notification.hpp"
 #include <TweenEngine/Tween.h>
+#ifndef EMULATION
+#include <3ds.h>
+#endif
 
 
 namespace DrawAttack {
@@ -10,10 +13,24 @@ PlayState::PlayState(StateStack& stack, Context& context)
 , m_mode(Mode::Spectate)
 , m_boardCopy(nullptr)
 , m_chatLogVelocity(0.f)
+, m_recorder(&context)
+, m_isRecording(false)
 {
 	m_textBackgroundTexture.loadFromFile("images/button-radius.9.png");
 	m_buttonTexture.loadFromFile("images/button.9.png");
 	m_iconFont.loadFromFile("fonts/fontawesome.ttf");
+
+	m_overlayBackground.setSize(cpp3ds::Vector2f(400.f, 240.f));
+	m_overlayBackground.setFillColor(cpp3ds::Color(0, 0, 0, 150));
+
+	m_iconMicrophone.setFont(m_iconFont);
+	m_iconMicrophone.setString(L"\uf130");
+	m_iconMicrophone.setCharacterSize(100);
+	m_iconMicrophone.setPosition(160.f, 100.f);
+	m_iconMicrophone.setFillColor(cpp3ds::Color(0, 255, 0, 150));
+	m_iconMicrophone.setOutlineColor(cpp3ds::Color(0, 0, 0, 150));
+	m_iconMicrophone.setOutlineThickness(2.f);
+	m_iconMicrophone.setOrigin(m_iconMicrophone.getLocalBounds().width / 2.f, m_iconMicrophone.getLocalBounds().height / 2.f);
 
 	m_buttonClear.setTexture(&m_buttonTexture);
 	m_buttonClear.getText().setCharacterSize(20);
@@ -90,6 +107,8 @@ PlayState::PlayState(StateStack& stack, Context& context)
 PlayState::~PlayState()
 {
 	getContext().client.disconnect();
+//	for (auto& player : m_players)
+//		player.second.voiceStream.stop();
 }
 
 
@@ -156,6 +175,11 @@ void PlayState::renderBottomScreen(cpp3ds::Window& window)
 
 	if (m_mode == Mode::Wait) {
 		window.draw(m_keyboard);
+	}
+
+	if (m_isRecording) {
+		window.draw(m_overlayBackground);
+		window.draw(m_iconMicrophone);
 	}
 }
 
@@ -268,6 +292,20 @@ bool PlayState::processEvent(const cpp3ds::Event& event)
 			case cpp3ds::Keyboard::Y:
 				m_scoreBoard.show();
 				return false;
+			case cpp3ds::Keyboard::R:
+			case cpp3ds::Keyboard::L: {
+				bool hasHeadphones = false;
+#ifdef EMULATION
+				hasHeadphones = true;
+#else
+				DSP_GetHeadphoneStatus(&hasHeadphones);
+#endif
+				if (m_mode != Mode::Draw && hasHeadphones && m_recorder.start(cpp3ds::SampleRate_8180)) {
+					m_isRecording = true;
+					std::cout << "start recording..." << std::endl;
+				}
+				return false;
+			}
 			case cpp3ds::Keyboard::Start:
 				requestStackPush(States::Pause);
 				return false;
@@ -278,8 +316,19 @@ bool PlayState::processEvent(const cpp3ds::Event& event)
 
 	if (event.type == cpp3ds::Event::KeyReleased)
 	{
-		if (event.key.code == cpp3ds::Keyboard::Y) {
-			m_scoreBoard.hide();
+		switch (event.key.code)
+		{
+			case cpp3ds::Keyboard::Y:
+				m_scoreBoard.hide();
+				break;
+			case cpp3ds::Keyboard::R:
+			case cpp3ds::Keyboard::L:
+				std::cout << "stop recording..." << std::endl;
+				m_recorder.stop();
+				m_isRecording = false;
+				return false;
+			default:
+				break;
 		}
 	}
 
@@ -392,8 +441,9 @@ bool PlayState::processNetworkEvent(const NetworkEvent &event)
 				}
 			}
 			Notification::spawn(_("%s joined the game.", event.player.name.c_str()));
-			PlayerData data(event.player.name);
-			m_players.emplace(event.player.name, data);
+			m_players.emplace(std::piecewise_construct,
+							  std::forward_as_tuple(event.player.name),
+							  std::forward_as_tuple(event.player.name));
 			updatePlayerInfo();
 			break;
 		}
@@ -417,9 +467,10 @@ bool PlayState::processNetworkEvent(const NetworkEvent &event)
 			std::cout << event.playerData.size() << " players connected:" << std::endl;
 			for (const auto &player : event.playerData) {
 				std::cout << player.name << std::endl;
-				PlayerData data(player.name);
-				data.player.setScore(player.score);
-				m_players.emplace(player.name, data);
+				m_players.emplace(std::piecewise_construct,
+								  std::make_tuple(player.name),
+								  std::make_tuple(player.name));
+				m_players.find(player.name)->second.player.setScore(player.score);
 			}
 			updatePlayerInfo();
 			break;
@@ -495,6 +546,17 @@ bool PlayState::processNetworkEvent(const NetworkEvent &event)
 			changeMode(Mode::Wait);
 			Notification::spawn(_("Game suspended until there are %d players.", static_cast<int>(event.wait.value)));
 			break;
+		case NetworkEvent::VoiceData:
+		case NetworkEvent::VoiceEnd: {
+			if (cpp3ds::Keyboard::isKeyDown(cpp3ds::Keyboard::DPadDown) || event.voice.player != getContext().name) {
+				auto player = m_players.find(event.voice.player);
+				if (player != m_players.end())
+					player->second.voiceStream.processEvent(event);
+			}
+			if (event.voice.data)
+				delete event.voice.data;
+			break;
+		}
 		case NetworkEvent::DrawUndo:
 			if (m_mode != Draw)
 				m_board.undo();

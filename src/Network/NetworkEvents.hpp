@@ -43,6 +43,12 @@ public:
 		cpp3ds::String value;
 	};
 
+	struct VoiceEvent {
+		std::string player;
+		unsigned int dataLength;
+		cpp3ds::Uint8* data;
+	};
+
 	enum EventType {
 		Version,
 		ServerShutdown, // These first two must not change for backwards compatibility
@@ -63,11 +69,14 @@ public:
 		RoundFail,
 		RoundPass,
 		RoundTimeout,
-		Voice,
+		Empty,
 		Ping,
 
 		ServerInfo,
 		DrawColor,
+
+		VoiceData,
+		VoiceEnd,
 
 		Count
 	};
@@ -82,6 +91,7 @@ public:
 		ServerInfoEvent serverInfo;
 		WaitEvent wait;
 		RoundEvent round;
+		VoiceEvent voice;
 		std::string roundWord;
 		cpp3ds::Color color;
 //	};
@@ -100,8 +110,11 @@ public:
 cpp3ds::Packet& operator <<(cpp3ds::Packet& packet, const NetworkEvent::EventType& type);
 cpp3ds::Packet& operator >>(cpp3ds::Packet& packet, NetworkEvent::EventType& type);
 
-cpp3ds::Packet& operator <<(cpp3ds::Packet& packet, const cpp3ds::Color& type);
-cpp3ds::Packet& operator >>(cpp3ds::Packet& packet, cpp3ds::Color& type);
+cpp3ds::Packet& operator <<(cpp3ds::Packet& packet, const cpp3ds::Color& color);
+cpp3ds::Packet& operator >>(cpp3ds::Packet& packet, cpp3ds::Color& color);
+
+cpp3ds::Packet& operator <<(cpp3ds::Packet& packet, const NetworkEvent::VoiceEvent& event);
+cpp3ds::Packet& operator >>(cpp3ds::Packet& packet, NetworkEvent::VoiceEvent& event);
 
 }
 

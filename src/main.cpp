@@ -5,11 +5,13 @@
 using namespace cpp3ds;
 
 int main(int argc, char** argv) {
-	Console::initialize();
+//	Console::enable(TopScreen, cpp3ds::Color::Black); // Console for reading stdout
+//	Console::enableBasic(TopScreen); // Console for reading stdout
 	if (!Service::enable(Network))
 		std::cout << "SERVICE FAILURE!" << std::endl;
+	if (!Service::enable(Microphone))
+		std::cout << "NO MIC!" << std::endl;
 	DrawAttack::DrawAttack game;
-	game.console(TopScreen); // Console for reading stdout
 	game.run();
 	return 0;
 }

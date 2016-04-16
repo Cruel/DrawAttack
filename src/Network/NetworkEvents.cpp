@@ -1,3 +1,4 @@
+#include <string.h>
 #include "NetworkEvents.hpp"
 
 namespace DrawAttack {
@@ -24,6 +25,25 @@ cpp3ds::Packet& operator >>(cpp3ds::Packet& packet, cpp3ds::Color& color)
 {
 	color.a = 255;
 	packet >> color.r >> color.g >> color.b;
+	return packet;
+}
+
+cpp3ds::Packet& operator <<(cpp3ds::Packet& packet, const NetworkEvent::VoiceEvent& event)
+{
+	packet << event.player << event.dataLength;
+	packet.append(event.data, event.dataLength);
+	return packet;
+}
+
+cpp3ds::Packet& operator >>(cpp3ds::Packet& packet, NetworkEvent::VoiceEvent& event)
+{
+	packet >> event.player >> event.dataLength;
+	if (event.dataLength > 0)
+	{
+		event.data = new cpp3ds::Uint8[event.dataLength];
+	}
+	else
+		event.data = nullptr;
 	return packet;
 }
 
@@ -75,6 +95,19 @@ bool NetworkEvent::packetToEvent(cpp3ds::Packet& packet, NetworkEvent& event)
 		case NetworkEvent::RoundStart:
 		case NetworkEvent::RoundWin:
 			packet >> event.round.player >> event.round.time;
+			break;
+		case NetworkEvent::VoiceData:
+		case NetworkEvent::VoiceEnd:
+			packet >> event.voice.player >> event.voice.dataLength;
+			if (event.voice.dataLength > 0)
+			{
+				event.voice.data = new cpp3ds::Uint8[event.voice.dataLength];
+				memcpy(event.voice.data, static_cast<const char*>(packet.getData()) + packet.getDataPosition(), event.voice.dataLength);
+				packet.advance(event.voice.dataLength);
+				cpp3ds::Int16* samples = reinterpret_cast<cpp3ds::Int16*>(event.voice.data);
+			}
+			else
+				event.voice.data = nullptr;
 			break;
 		case NetworkEvent::DrawData:
 		case NetworkEvent::DrawUndo:
@@ -128,7 +161,15 @@ bool NetworkEvent::eventToPacket(NetworkEvent &event, cpp3ds::Packet &packet)
 			break;
 		case NetworkEvent::RoundStart:
 		case NetworkEvent::RoundWin:
-			packet << event.round.player >> event.round.time;
+			packet << event.round.player << event.round.time;
+			break;
+		case NetworkEvent::VoiceData:
+		case NetworkEvent::VoiceEnd:
+			packet << event.voice.player << event.voice.dataLength;
+			packet.append(event.voice.data, event.voice.dataLength);
+			{
+				cpp3ds::Int16 *samples = reinterpret_cast<cpp3ds::Int16 *>(event.voice.data);
+			}
 			break;
 		case NetworkEvent::DrawData:
 		case NetworkEvent::DrawUndo:

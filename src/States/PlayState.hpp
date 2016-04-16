@@ -9,6 +9,9 @@
 #include "../Network/Player.hpp"
 #include "../ScoreBoard.hpp"
 #include "../ChatLog.hpp"
+#include "../Network/NetworkSoundStream.hpp"
+#include "../Network/NetworkSoundRecorder.hpp"
+#include <cpp3ds/Audio/SoundBufferRecorder.hpp>
 #include <cpp3ds/Graphics/Sprite.hpp>
 #include <cpp3ds/Graphics/Text.hpp>
 #include <TweenEngine/TweenManager.h>
@@ -37,6 +40,7 @@ private:
 		PlayerData(std::string name) : player(name) {}
 		Player player;
 		SpeechBubble bubble;
+		NetworkSoundStream voiceStream;
 	};
 
 	void changeMode(Mode mode);
@@ -64,6 +68,8 @@ private:
 
 	std::map<std::string, PlayerData> m_players;
 
+	NetworkSoundRecorder m_recorder;
+
 	cpp3ds::Font    m_iconFont;
 	cpp3ds::Texture m_buttonTexture;
 	gui3ds::Button  m_buttonClear;
@@ -74,6 +80,10 @@ private:
 	ScoreBoard m_scoreBoard;
 	ChatLog m_chatLog;
 	float m_chatLogVelocity;
+
+	cpp3ds::RectangleShape m_overlayBackground;
+	cpp3ds::Text m_iconMicrophone;
+	bool m_isRecording;
 };
 
 } // namespace DrawAttack

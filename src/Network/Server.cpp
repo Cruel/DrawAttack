@@ -245,6 +245,12 @@ void Server::processSocket(cpp3ds::TcpSocket* socket)
 					}
 					break;
 				}
+				case NetworkEvent::VoiceData:
+				case NetworkEvent::VoiceEnd:
+					NetworkEvent::eventToPacket(event, packetSend);
+					if (event.voice.data)
+						delete event.voice.data;
+					break;
 				case NetworkEvent::DrawMove:
 				case NetworkEvent::DrawEndline:
 					m_drawDataPacket << event.type << event.draw.x << event.draw.y;
@@ -299,9 +305,12 @@ bool Server::validateEvent(cpp3ds::TcpSocket* socket, const NetworkEvent &event)
 		case NetworkEvent::DrawUndo:
 		case NetworkEvent::DrawClear:
 		case NetworkEvent::DrawColor:
-			if (m_currentDrawer != socket || m_mode == Wait)
-				return false;
-			break;
+			// Only allow drawer to send these events
+			return (m_currentDrawer == socket && m_mode != Wait);
+		case NetworkEvent::VoiceData:
+		case NetworkEvent::VoiceEnd:
+			// Don't allow drawer to talk
+			return (m_currentDrawer != socket || m_mode == Wait);
 		default:
 			break;
 	}
@@ -370,7 +379,7 @@ void Server::removeSocket(cpp3ds::TcpSocket *socket)
 		packet << NetworkEvent::PlayerDisconnected << name;
 		if (m_players.size() < m_config.getMinPlayers()) {
 			m_mode = Wait;
-			packet << NetworkEvent::WaitForPlayers << m_config.getMinPlayers();
+			packet << NetworkEvent::WaitForPlayers << static_cast<float>(m_config.getMinPlayers());
 		}
 		sendToAllSockets(packet);
 	}
