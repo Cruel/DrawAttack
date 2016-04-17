@@ -1,7 +1,7 @@
 # NameSelectState.cpp
 #####################
 What is your name?
-Wat is jouw naam?
+Wat is je naam?
 
 # PauseState.cpp
 ################
@@ -20,13 +20,13 @@ Stoppen
 %s is bij het spel gekomen.
 
 Name \"%s\" already taken.
-Naam \"%s\" is al genomen.
+Naam \"%s\" is al gekozen.
 
 %s left the game.
 %s heeft het spel verlaten.
 
 Disconnected from server.\nReason: %s
-Verbinding met server verbroken.\nReden: %s
+De verbinding met server is verbroken.\nReden: %s
 
 %s is now drawing.
 %s is nu aan het tekenen.
@@ -35,16 +35,16 @@ Verbinding met server verbroken.\nReden: %s
 %s raadde het woord: %s
 
 Round ended.
-Ronde is gedaan.
+Ronde is afgelopen.
 
 Word was: %s
-Woord was: %s
+Het woord was: %s
 
 %s passed.
 %s gaf op.
 
 Round ended due to inactivity.
-Ronde beëindigd door geen activiteit.
+Ronde beëindigd door gebrek aan activiteit.
 
 Game suspended until there are %d players.
 Spel uitgesteld tot er %d spelers zijn.
@@ -52,7 +52,7 @@ Spel uitgesteld tot er %d spelers zijn.
 # ServerList.cpp
 ################
 Failed to fetch server list.
-Server lijst ophalen mislukt
+Server lijst ophalen mislukt.
 
 # ServerSelectState.cpp
 #######################
@@ -60,10 +60,10 @@ Select a server:
 Kies een server:
 
 Connect
-Connecteer
+Verbind
 
 Failed to connect. Try again.
-Kon geen connectie maken. Probeer het opnieuw.
+Kon geen verbinding maken. Probeer het opnieuw.
 
 # TitleState.cpp
 ################
@@ -71,7 +71,7 @@ Press any key to start. SELECT to exit.
 Druk op een knop om te starten. SELECT om weg te gaan.
 
 No internet connection.\nConnect to internet and retry.
-Geen internet connectie.\nMaak connectie met het internet en probeer het opnieuw.
+Geen internet verbinding.\nMaak eerst verbinding met het internet en probeer het opnieuw.
 
 # TransitionMessageState.cpp
 ############################
