@@ -292,7 +292,13 @@ bool Keyboard::processEvents(const cpp3ds::Event &event)
 		for (Button& button: layout.buttons) {
 			if (button.rect.contains(event.touch.x, event.touch.y)) {
 				m_activeButton = &button;
+				m_clockKeyPressStart.restart();
 			}
+		}
+
+		if (m_activeButton) {
+			m_usingTempLayout = false;
+			processActiveKey();
 		}
 
 		// Check for cursor position change
@@ -328,48 +334,14 @@ bool Keyboard::processEvents(const cpp3ds::Event &event)
 	}
 
 	if (event.type == cpp3ds::Event::TouchEnded) {
-		if (m_activeButton != NULL) {
-			m_usingTempLayout = false;
-			switch (m_activeButton->type) {
-				case Enter:
-					enterText();
-					break;
-				case Backspace:
-					if (m_input.cursorPosition == m_input.data.getSize())
-						break;
-					m_input.data.erase(m_input.data.getSize() - m_input.cursorPosition - 1, 1);
-					m_input.text.setString(m_input.data);
-					break;
-				case LayoutChange:
-					m_layoutIndex = 0;
-					for (const Layout& layout: m_layouts) {
-						if (layout.name == m_activeButton->data)
-							break;
-						m_layoutIndex++;
-					}
-					break;
-				case LayoutChangeTemp:
-					m_usingTempLayout = true;
-					m_tempLayoutIndex = 0;
-					for (const Layout& layout: m_layouts) {
-						if (layout.name == m_activeButton->data)
-							break;
-						m_tempLayoutIndex++;
-					}
-					break;
-				default:
-					if (m_input.text.getGlobalBounds().width < m_input.maxWidth) {
-						m_input.data.insert(m_input.data.getSize() - m_input.cursorPosition, m_activeButton->data);
-						m_input.text.setString(m_input.data);
-					}
-			}
+		if (m_activeButton) {
 			m_activeButton = NULL;
 			m_needsUpdate = true;
 		}
 	}
 
 	if (event.type == cpp3ds::Event::TouchMoved) {
-		if (m_activeButton != NULL && !m_activeButton->rect.contains(event.touch.x, event.touch.y)) {
+		if (m_activeButton && !m_activeButton->rect.contains(event.touch.x, event.touch.y)) {
 			m_activeButton = NULL;
 			m_needsUpdate = true;
 		}
@@ -378,6 +350,7 @@ bool Keyboard::processEvents(const cpp3ds::Event &event)
 	if (event.type == cpp3ds::Event::KeyPressed) {
 		if (event.key.code == cpp3ds::Keyboard::A) {
 			enterText();
+			m_needsUpdate = true;
 			return false;
 		}
 	}
@@ -388,6 +361,14 @@ bool Keyboard::processEvents(const cpp3ds::Event &event)
 
 void Keyboard::update(float delta)
 {
+	// Repeat key being held
+	if (m_activeButton != NULL)
+		if (m_clockKeyPressStart.getElapsedTime() > cpp3ds::milliseconds(700))
+			if (m_clockKeyRepeat.getElapsedTime() > cpp3ds::milliseconds(40)) {
+				m_clockKeyRepeat.restart();
+				processActiveKey();
+			}
+
 	if (m_needsUpdate)
 		updateVertices();
 }
@@ -436,5 +417,49 @@ void Keyboard::enterText()
 		m_input.cursorPosition = 0;
 	}
 }
+
+
+void Keyboard::processActiveKey()
+{
+	if (!m_activeButton)
+		return;
+
+	switch (m_activeButton->type) {
+		case Enter:
+			enterText();
+			break;
+		case Backspace:
+			if (m_input.cursorPosition == m_input.data.getSize())
+				break;
+			m_input.data.erase(m_input.data.getSize() - m_input.cursorPosition - 1, 1);
+			m_input.text.setString(m_input.data);
+			break;
+		case LayoutChange:
+			m_layoutIndex = 0;
+			for (const Layout& layout: m_layouts) {
+				if (layout.name == m_activeButton->data)
+					break;
+				m_layoutIndex++;
+			}
+			break;
+		case LayoutChangeTemp:
+			m_usingTempLayout = true;
+			m_tempLayoutIndex = 0;
+			for (const Layout& layout: m_layouts) {
+				if (layout.name == m_activeButton->data)
+					break;
+				m_tempLayoutIndex++;
+			}
+			break;
+		default:
+			if (m_input.text.getGlobalBounds().width < m_input.maxWidth) {
+				m_input.data.insert(m_input.data.getSize() - m_input.cursorPosition, m_activeButton->data);
+				m_input.text.setString(m_input.data);
+			}
+	}
+
+	m_needsUpdate = true;
+}
+
 
 } // namesapce util3ds

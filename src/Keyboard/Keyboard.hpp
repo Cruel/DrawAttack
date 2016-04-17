@@ -19,6 +19,7 @@ protected:
 	void draw(cpp3ds::RenderTarget& target, cpp3ds::RenderStates states) const;
 	void updateVertices();
 	void enterText();
+	void processActiveKey();
 
 private:
 	struct State {
@@ -84,6 +85,9 @@ private:
 	bool                  m_usingTempLayout;
 	bool                  m_loaded;
 	bool                  m_needsUpdate;
+
+	cpp3ds::Clock         m_clockKeyPressStart;
+	cpp3ds::Clock         m_clockKeyRepeat;
 
 	std::queue<cpp3ds::String> m_strings;
 };
