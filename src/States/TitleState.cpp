@@ -57,11 +57,14 @@ bool TitleState::processEvent(const cpp3ds::Event& event)
 			return true;
 		}
 
-		if (cpp3ds::Service::isEnabled(cpp3ds::Network)) {
+		if (cpp3ds::Service::isEnabled(cpp3ds::Network) && cpp3ds::Service::isEnabled(cpp3ds::Audio)) {
 			requestStackPop();
 			requestStackPush(States::ServerSelect);
 		} else {
-			getContext().transition.message = _("No internet connection.\nConnect to internet and retry.");
+			if (!cpp3ds::Service::isEnabled(cpp3ds::Network))
+				getContext().transition.message = _("No internet connection.\nConnect to internet and retry.");
+			else if (!cpp3ds::Service::isEnabled(cpp3ds::Audio))
+				getContext().transition.message = _("Audio failed to initialize.\nMaybe you need DSP firmware dump?");
 			requestStackPush(States::TransitionMessage);
 		}
 	}

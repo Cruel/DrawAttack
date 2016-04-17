@@ -5,7 +5,7 @@
 #include <cpp3ds/Graphics/Color.hpp>
 #include "NetworkEvents.hpp"
 
-#define CLIENT_VERSION "1.2"
+#define CLIENT_VERSION "1.3"
 
 namespace DrawAttack {
 
