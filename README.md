@@ -1,4 +1,4 @@
-# DrawAttack 1.3
+# DrawAttack
 
 
 # Credits
